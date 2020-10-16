@@ -34,4 +34,12 @@
         </foreach>
 	</select>
 
+    <!--根据部门ids获取人数 -->
+    <select id="queryUserNumByIds" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM sys_user_depart sud WHERE sud.dep_id IN
+        <foreach collection="depIds" item="item" index="index"  open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
 </mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.bysj.mapper.BysjClassroomInfoMapper">
+    <select id="isClassroomNameExist" resultType="boolean">
+		SELECT
+            COUNT(*)
+        FROM
+            bysj_classroom_info bci
+        WHERE
+            bci.classroom_name = "${classroomName}"
+	</select>
+
+    <select id="arrangePage" statementType="CALLABLE" resultType="org.jeecg.modules.bysj.entity.BysjClassroomInfo">
+        SELECT * FROM bysj_classroom_info bci
+        WHERE bci.hold_number &gt;= #{num,jdbcType=INTEGER}
+        AND bci.id NOT IN(
+            SELECT
+                DISTINCT
+                bca.classroom_id
+            FROM
+                bysj_course_info bci,
+                bysj_course_arrange bca
+            WHERE
+                bci.`status` IN ("1", "2")
+            AND bca.course_id = bci.id
+            AND(
+                (
+                    (REPLACE(bca.timetable_start_code,"-","") &gt;= REPLACE(#{bysjCourseArrange.timetableStartCode,jdbcType=VARCHAR},"-","") AND REPLACE(bca.timetable_start_code,"-","") &lt;= REPLACE(#{bysjCourseArrange.timetableEndCode,jdbcType=VARCHAR},"-",""))
+                    OR (REPLACE(bca.timetable_end_code,"-","") &gt;= REPLACE(#{bysjCourseArrange.timetableStartCode,jdbcType=VARCHAR},"-","") AND REPLACE(bca.timetable_end_code,"-","") &lt;= REPLACE(#{bysjCourseArrange.timetableEndCode,jdbcType=VARCHAR},"-",""))
+                    OR (REPLACE(bca.timetable_start_code,"-","") &lt;= REPLACE(#{bysjCourseArrange.timetableStartCode,jdbcType=VARCHAR},"-","") AND REPLACE(bca.timetable_end_code,"-","") &gt;= REPLACE(#{bysjCourseArrange.timetableEndCode,jdbcType=VARCHAR},"-",""))
+                )
+                AND (
+                    (UNIX_TIMESTAMP(bci.start_time) &gt;= (SELECT UNIX_TIMESTAMP(bci.start_time) FROM bysj_course_info bci WHERE bci.id = #{bysjCourseArrange.courseId,jdbcType=VARCHAR}) AND UNIX_TIMESTAMP(bci.start_time) &lt;= (SELECT UNIX_TIMESTAMP(bci.end_time) FROM bysj_course_info bci WHERE bci.id = #{bysjCourseArrange.courseId,jdbcType=VARCHAR}))
+                    OR (UNIX_TIMESTAMP(bci.end_time) &gt;= (SELECT UNIX_TIMESTAMP(bci.start_time) FROM bysj_course_info bci WHERE bci.id = #{bysjCourseArrange.courseId,jdbcType=VARCHAR}) AND UNIX_TIMESTAMP(bci.end_time) &lt;= (SELECT UNIX_TIMESTAMP(bci.end_time) FROM bysj_course_info bci WHERE bci.id = #{bysjCourseArrange.courseId,jdbcType=VARCHAR}))
+                    OR (UNIX_TIMESTAMP(bci.start_time) &lt;= (SELECT UNIX_TIMESTAMP(bci.start_time) FROM bysj_course_info bci WHERE bci.id = #{bysjCourseArrange.courseId,jdbcType=VARCHAR}) AND UNIX_TIMESTAMP(bci.end_time) &gt;= (SELECT UNIX_TIMESTAMP(bci.end_time) FROM bysj_course_info bci WHERE bci.id = #{bysjCourseArrange.courseId,jdbcType=VARCHAR}))
+                )
+            )
+        )
+	</select>
+</mapper>

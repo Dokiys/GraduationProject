@@ -1,17 +1,14 @@
 package org.jeecg.common.util.dynamic.db;
 
-import com.alibaba.druid.pool.DruidDataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.ArrayUtils;
-import org.jeecg.common.exception.JeecgBootException;
-import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.common.system.vo.DynamicDataSourceModel;
 import org.jeecg.common.util.ReflectHelper;
 import org.jeecg.common.util.oConvertUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -33,30 +30,20 @@ public class DynamicDBUtil {
      * @param dbSource
      * @return
      */
-    private static DruidDataSource getJdbcDataSource(final DynamicDataSourceModel dbSource) {
-        DruidDataSource dataSource = new DruidDataSource();
+    @Deprecated
+    private static BasicDataSource getJdbcDataSource(final DynamicDataSourceModel dbSource) {
+        BasicDataSource dataSource = new BasicDataSource();
 
         String driverClassName = dbSource.getDbDriver();
         String url = dbSource.getDbUrl();
         String dbUser = dbSource.getDbUsername();
         String dbPassword = dbSource.getDbPassword();
+        //设置数据源的时候，要重新解密
+//		String dbPassword  = PasswordUtil.decrypt(dbSource.getDbPassword(), dbSource.getDbUsername(), PasswordUtil.getStaticSalt());//解密字符串；
         dataSource.setDriverClassName(driverClassName);
         dataSource.setUrl(url);
-        //dataSource.setValidationQuery("SELECT 1 FROM DUAL");
-        dataSource.setTestWhileIdle(true);
-        dataSource.setTestOnBorrow(false);
-        dataSource.setTestOnReturn(false);
-        dataSource.setBreakAfterAcquireFailure(true);
-        dataSource.setConnectionErrorRetryAttempts(0);
         dataSource.setUsername(dbUser);
-        dataSource.setMaxWait(60000);
         dataSource.setPassword(dbPassword);
-
-        log.info("******************************************");
-        log.info("*                                        *");
-        log.info("*====【"+dbSource.getCode()+"】=====Druid连接池已启用 ====*");
-        log.info("*                                        *");
-        log.info("******************************************");
         return dataSource;
     }
 
@@ -66,21 +53,17 @@ public class DynamicDBUtil {
      * @param dbKey
      * @return
      */
-    public static DruidDataSource getDbSourceByDbKey(final String dbKey) {
+    public static BasicDataSource getDbSourceByDbKey(final String dbKey) {
         //获取多数据源配置
         DynamicDataSourceModel dbSource = DataSourceCachePool.getCacheDynamicDataSourceModel(dbKey);
         //先判断缓存中是否存在数据库链接
-        DruidDataSource cacheDbSource = DataSourceCachePool.getCacheBasicDataSource(dbKey);
+        BasicDataSource cacheDbSource = DataSourceCachePool.getCacheBasicDataSource(dbKey);
         if (cacheDbSource != null && !cacheDbSource.isClosed()) {
             log.debug("--------getDbSourceBydbKey------------------从缓存中获取DB连接-------------------");
             return cacheDbSource;
         } else {
-            DruidDataSource dataSource = getJdbcDataSource(dbSource);
-            if(dataSource!=null && dataSource.isEnable()){
-                DataSourceCachePool.putCacheBasicDataSource(dbKey, dataSource);
-            }else{
-                throw new JeecgBootException("动态数据源连接失败，dbKey："+dbKey);
-            }
+            BasicDataSource dataSource = getJdbcDataSource(dbSource);
+            DataSourceCachePool.putCacheBasicDataSource(dbKey, dataSource);
             log.info("--------getDbSourceBydbKey------------------创建DB数据库连接-------------------");
             return dataSource;
         }
@@ -93,7 +76,7 @@ public class DynamicDBUtil {
      * @return
      */
     public static void closeDbKey(final String dbKey) {
-        DruidDataSource dataSource = getDbSourceByDbKey(dbKey);
+        BasicDataSource dataSource = getDbSourceByDbKey(dbKey);
         try {
             if (dataSource != null && !dataSource.isClosed()) {
                 dataSource.getConnection().commit();
@@ -107,7 +90,7 @@ public class DynamicDBUtil {
 
 
     private static JdbcTemplate getJdbcTemplate(String dbKey) {
-        DruidDataSource dataSource = getDbSourceByDbKey(dbKey);
+        BasicDataSource dataSource = getDbSourceByDbKey(dbKey);
         return new JdbcTemplate(dataSource);
     }
 

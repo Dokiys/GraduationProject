@@ -6,8 +6,8 @@
       <a-form layout="inline">
         <a-row :gutter="10">
           <a-col :md="10" :sm="12">
-            <a-form-item label="部门角色名称" style="margin-left:8px">
-              <a-input placeholder="请输入部门角色" v-model="queryParam.roleName"></a-input>
+            <a-form-item label="角色名称" style="margin-left:8px">
+              <a-input placeholder="请输入角色" v-model="queryParam.roleName"></a-input>
             </a-form-item>
           </a-col>
           <span style="float: left;overflow: hidden;" class="table-page-search-submitButtons">
@@ -21,7 +21,7 @@
     </div>
     <!-- 操作按钮区域 -->
     <div class="table-operator" :md="24" :sm="24">
-      <a-button @click="handleAdd" type="primary" icon="plus">新建部门角色</a-button>
+      <a-button @click="handleAdd" type="primary" icon="plus">角色录入</a-button>
       <a-dropdown v-if="selectedRowKeys.length > 0">
         <a-menu slot="overlay">
           <a-menu-item key="1" @click="batchDel"><a-icon type="delete"/>删除</a-menu-item>
@@ -56,14 +56,17 @@
             </a>
             <a-menu slot="overlay">
               <a-menu-item>
-                <a @click="handlePerssion(record)">授权</a>
-              </a-menu-item>
-              <a-menu-item>
                 <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete(record.id)">
                   <a>删除</a>
                 </a-popconfirm>
               </a-menu-item>
-             </a-menu>
+              <a-menu-item>
+                <a href="javascript:;" @click="handleDetail(record)">详情</a>
+              </a-menu-item>
+              <a-menu-item>
+                <a @click="handlePerssion(record)">授权</a>
+              </a-menu-item>
+            </a-menu>
           </a-dropdown>
         </span>
       </a-table>
@@ -87,21 +90,21 @@
     mixins: [JeecgListMixin],
     data() {
       return {
-        description: '部门角色信息',
+        description: '角色信息',
         currentDeptId: '',
         // 表头
         columns: [{
-          title: '部门角色名称',
+          title: '角色名称',
           align: "center",
           dataIndex: 'roleName'
         },
         {
-          title: '部门角色编码',
+          title: '角色编码',
           align: "center",
           dataIndex: 'roleCode'
         },
         {
-          title: '部门',
+          title: '所属院系',
           align: "center",
           dataIndex: 'departId_dictText'
         },
@@ -119,6 +122,7 @@
         }],
         url: {
           list: "/sys/sysDepartRole/list",
+          currentList: "/sys/sysDepartRole/currentList",
           delete: "/sys/sysDepartRole/delete",
           deleteBatch: "/sys/sysDepartRole/deleteBatch",
         }
@@ -129,7 +133,9 @@
     methods: {
       searchReset() {
         this.queryParam = {}
+        this.currentDeptId = '';
         this.loadData(1);
+        this.$emit('clearSelectedDepartKeys')
       },
       loadData(arg) {
         if (!this.url.list) {
@@ -142,7 +148,7 @@
         }
         let params = this.getQueryParams();//查询条件
         params.deptId = this.currentDeptId;
-        getAction(this.url.list, params).then((res) => {
+        getAction(this.url.currentList, params).then((res) => {
           if (res.success && res.result) {
             this.dataSource = res.result.records;
             this.ipagination.total = res.result.total;
@@ -151,6 +157,7 @@
       },
       open(record) {
         this.currentDeptId = record.id;
+        console.log(this.currentDeptId);
         this.loadData(1);
       },
       clearList() {

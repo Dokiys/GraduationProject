@@ -78,7 +78,6 @@
         :dataSource="dataSource"
         :pagination="ipagination"
         :loading="loading"
-        class="j-table-force-nowrap"
         :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
         @change="handleTableChange">
 
@@ -108,7 +107,6 @@
 </template>
 
 <script>
-  import '@/assets/less/TableExpand.less'
   import ${entityName}Modal from './modules/${entityName}Modal'
   import { JeecgListMixin } from '@/mixins/JeecgListMixin'
 
@@ -169,5 +167,5 @@
   }
 </script>
 <style scoped>
-  @import '~@assets/less/common.less';
+  @import '~@assets/less/common.less'
 </style>

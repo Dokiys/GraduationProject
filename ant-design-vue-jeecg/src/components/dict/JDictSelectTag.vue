@@ -3,12 +3,14 @@
     <a-radio v-for="(item, key) in dictOptions" :key="key" :value="item.value">{{ item.text }}</a-radio>
   </a-radio-group>
 
-  <a-radio-group v-else-if="tagType=='radioButton'"  buttonStyle="solid" @change="handleInput" :value="getValueSting" :disabled="disabled">
-    <a-radio-button v-for="(item, key) in dictOptions" :key="key" :value="item.value">{{ item.text }}</a-radio-button>
-  </a-radio-group>
-
-  <a-select v-else-if="tagType=='select'" :getPopupContainer = "getPopupContainer" :placeholder="placeholder" :disabled="disabled" :value="getValueSting" @change="handleInput">
-    <a-select-option :value="undefined">请选择</a-select-option>
+  <a-select v-else-if="tagType=='select'" 
+    :getPopupContainer = "(target) => target.parentNode" 
+    :placeholder="placeholder" 
+    :disabled="disabled" 
+    :value="getValueSting" 
+    @change="handleInput" 
+    allowClear>
+    <!-- <a-select-option :value="undefined">{{defaultValueName}}</a-select-option> -->
     <a-select-option v-for="(item, key) in dictOptions" :key="key" :value="item.value">
       <span style="display: inline-block;width: 100%" :title=" item.text || item.label ">
         {{ item.text || item.label }}
@@ -18,7 +20,7 @@
 </template>
 
 <script>
-  import {ajaxGetDictItems,getDictItemsFromCache} from '@/api/api'
+  import {ajaxGetDictItems} from '@/api/api'
 
   export default {
     name: "JDictSelectTag",
@@ -29,10 +31,6 @@
       disabled: Boolean,
       value: [String, Number],
       type: String,
-      getPopupContainer:{
-        type: Function,
-        default: (node) => node.parentNode
-      }
     },
     data() {
       return {
@@ -60,20 +58,11 @@
     },
     computed: {
       getValueSting(){
-        // update-begin author:wangshuai date:20200601 for: 不显示placeholder的文字 ------
-        // 当有null或“” placeholder不显示
-        return this.value != null ? this.value.toString() : undefined;
-        // update-end author:wangshuai date:20200601 for: 不显示placeholder的文字 ------
+        return this.value ? this.value.toString() : null;
       },
     },
     methods: {
       initDictData() {
-        //优先从缓存中读取字典配置
-        if(getDictItemsFromCache(this.dictCode)){
-          this.dictOptions = getDictItemsFromCache(this.dictCode);
-          return
-        }
-
         //根据字典Code, 初始化字典数组
         ajaxGetDictItems(this.dictCode, null).then((res) => {
           if (res.success) {

@@ -77,30 +77,30 @@
   // 表头
   const columns = [
     {
-      title: '机构名称',
+      title: '班级名称',
       dataIndex: 'departName',
     },
     {
-      title: '机构类型',
+      title: '班级类型',
       align: "center",
       dataIndex: 'orgType'
     },
     {
-      title: '机构编码',
+      title: '班级编码',
       dataIndex: 'orgCode'
     },
     {
-      title: '手机号',
+      title: '班主任联系方式',
       dataIndex: 'mobile'
     },
-    {
-      title: '传真',
-      dataIndex: 'fax'
-    },
-    {
-      title: '地址',
-      dataIndex: 'address'
-    },
+    // {
+    //   title: '传真',
+    //   dataIndex: 'fax'
+    // },
+    // {
+    //   title: '地址',
+    //   dataIndex: 'address'
+    // },
     {
       title: '排序',
       align: 'center',

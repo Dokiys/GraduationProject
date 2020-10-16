@@ -32,12 +32,12 @@
         </div>
         <!-- 操作按钮区域 -->
         <div class="table-operator" style="margin: 5px 0 10px 2px">
-          <a-button @click="handleAdd" type="primary" icon="plus">新建角色</a-button>
+          <a-button @click="handleAdd" type="primary" icon="plus">角色录入</a-button>
           <!--<a-button @click="handleEdit(model1)" type="primary" icon="plus">角色编辑</a-button>-->
           <a-upload name="file" :showUploadList="false" :multiple="false" :headers="tokenHeader" :action="importExcelUrl" @change="handleImportExcel">
             <a-button type="primary" icon="import">导入</a-button>
           </a-upload>
-          <a-button type="primary" icon="download" @click="handleExportXls('角色管理')">导出</a-button>
+          <a-button type="primary" icon="download" @click="handleExportXls">导出</a-button>
         </div>
 
         <div class="ant-alert ant-alert-info" style="margin-bottom: 16px;">
@@ -74,7 +74,11 @@
                 <a-menu-item>
                   <a @click="handleEdit(record)">编辑</a>
                 </a-menu-item>
-                <a-menu-item>
+                <a-menu-item v-if="record.id != '1253856817919787009' 
+                                && record.id != '1253856742812385281'
+                                && record.id != '1253856709492834305'
+                                && record.id != '1253145652369498113'
+                                && record.id != 'f6817f48af4fb3af11b9e8bf182f618b'">
                   <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete1(record.id)">
                     <a>删除</a>
                   </a-popconfirm>
@@ -115,10 +119,10 @@
           </a-form>
         </div>
         <!-- 操作按钮区域 -->
-        <div class="table-operator" :md="24" :sm="24">
-          <a-button @click="handleAdd2" type="primary" icon="plus" style="margin-top: 16px">新增用户</a-button>
+        <div class="table-operator" :md="24" :sm="24" style="margin: -25px 0px 10px 2px">
+          <!-- <a-button @click="handleAdd2" type="primary" icon="plus" style="margin-top: 16px">用户录入</a-button> -->
           <!--<a-button @click="handleEdit2" type="primary" icon="edit" style="margin-top: 16px">用户编辑</a-button>-->
-          <a-button @click="handleAddUserRole" type="primary" icon="plus" style="margin-top: 16px">已有用户</a-button>
+          <a-button @click="handleAddUserRole" type="primary" icon="plus" style="margin-top: 16px">添加用户</a-button>
 
           <a-dropdown v-if="selectedRowKeys2.length > 0">
             <a-menu slot="overlay">
@@ -274,12 +278,13 @@
               scopedSlots: { customRender: 'action' }
             }
           ],
-        columns2: [{
+        columns2: [
+          {
           title: '用户账号',
           align: 'center',
           dataIndex: 'username',
           width: 120
-        },
+          },
           {
             title: '用户名称',
             align: 'center',
@@ -301,10 +306,7 @@
             width: 120
           }],
 
-        // 高级查询参数
-        superQueryParams2: '',
-        // 高级查询拼接条件
-        superQueryMatchType2: 'and',
+
         url: {
           list: '/sys/role/list',
           delete: '/sys/role/delete',
@@ -358,7 +360,6 @@
         let sqp = {}
         if (this.superQueryParams2) {
           sqp['superQueryParams'] = encodeURI(this.superQueryParams2)
-          sqp['superQueryMatchType'] = this.superQueryMatchType2
         }
         var param = Object.assign(sqp, this.queryParam2, this.isorter2, this.filters2)
         param.field = this.getQueryField2()

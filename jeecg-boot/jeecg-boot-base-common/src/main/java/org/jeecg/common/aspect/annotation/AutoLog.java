@@ -1,9 +1,12 @@
 package org.jeecg.common.aspect.annotation;
 
-import org.jeecg.common.constant.CommonConstant;
-import org.jeecg.common.constant.enums.ModuleType;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.lang.annotation.*;
+import org.jeecg.common.constant.CommonConstant;
 
 /**
  * 系统日志注解
@@ -37,10 +40,4 @@ public @interface AutoLog {
 	 * @return （1查询，2添加，3修改，4删除）
 	 */
 	int operateType() default 0;
-
-	/**
-	 * 模块类型 默认为common
-	 * @return
-	 */
-	ModuleType module() default ModuleType.COMMON;
 }

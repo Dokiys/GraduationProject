@@ -29,7 +29,7 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 public class SysDepartPermission {
     
 	/**id*/
-	@TableId(type = IdType.ASSIGN_ID)
+	@TableId(type = IdType.ID_WORKER_STR)
     @ApiModelProperty(value = "id")
 	private java.lang.String id;
 	/**部门id*/

@@ -1,36 +1,32 @@
 package org.jeecg.modules.system.controller;
 
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyuncs.exceptions.ClientException;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CacheConstant;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.api.ISysBaseAPI;
-import org.jeecg.modules.base.service.BaseCommonService;
 import org.jeecg.common.system.util.JwtUtil;
 import org.jeecg.common.system.vo.LoginUser;
 import org.jeecg.common.util.*;
 import org.jeecg.common.util.encryption.EncryptedString;
+import org.jeecg.modules.shiro.vo.DefContants;
 import org.jeecg.modules.system.entity.SysDepart;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.model.SysLoginModel;
 import org.jeecg.modules.system.service.ISysDepartService;
-import org.jeecg.modules.system.service.ISysDictService;
 import org.jeecg.modules.system.service.ISysLogService;
 import org.jeecg.modules.system.service.ISysUserService;
 import org.jeecg.modules.system.util.RandImageUtil;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -54,11 +50,7 @@ public class LoginController {
     private RedisUtil redisUtil;
 	@Autowired
     private ISysDepartService sysDepartService;
-	@Autowired
-    private ISysDictService sysDictService;
-	@Resource
-	private BaseCommonService baseCommonService;
-
+	
 	private static final String BASE_CHECK_CODES = "qwertyuiplkjhgfdsazxcvbnmQWERTYUPLKJHGFDSAZXCVBNM1234567890";
 
 	@ApiOperation("登录接口")
@@ -81,19 +73,14 @@ public class LoginController {
         String lowerCaseCaptcha = captcha.toLowerCase();
 		String realKey = MD5Util.MD5Encode(lowerCaseCaptcha+sysLoginModel.getCheckKey(), "utf-8");
 		Object checkCode = redisUtil.get(realKey);
-		//当进入登录页时，有一定几率出现验证码错误 #1714
-		if(checkCode==null || !checkCode.toString().equals(lowerCaseCaptcha)) {
+		if(checkCode==null || !checkCode.equals(lowerCaseCaptcha)) {
 			result.error500("验证码错误");
 			return result;
 		}
 		//update-end-author:taoyan date:20190828 for:校验验证码
 		
 		//1. 校验用户是否有效
-		//update-begin-author:wangshuai date:20200601 for: 登录代码验证用户是否注销bug，if条件永远为false
-		LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
-		queryWrapper.eq(SysUser::getUsername,username);
-		SysUser sysUser = sysUserService.getOne(queryWrapper);
-		//update-end-author:wangshuai date:20200601 for: 登录代码验证用户是否注销bug，if条件永远为false
+		SysUser sysUser = sysUserService.getUserByName(username);
 		result = sysUserService.checkUserIsEffective(sysUser);
 		if(!result.isSuccess()) {
 			return result;
@@ -109,11 +96,8 @@ public class LoginController {
 				
 		//用户登录信息
 		userInfo(sysUser, result);
-		//update-begin--Author:wangshuai  Date:20200714  for：登录日志没有记录人员
-		LoginUser loginUser = new LoginUser();
-		BeanUtils.copyProperties(sysUser, loginUser);
-		baseCommonService.addLog("用户名: " + username + ",登录成功！", CommonConstant.LOG_TYPE_1, null,loginUser);
-        //update-end--Author:wangshuai  Date:20200714  for：登录日志没有记录人员
+		sysBaseAPI.addLog("用户名: " + username + ",登录成功！", CommonConstant.LOG_TYPE_1, null);
+
 		return result;
 	}
 	
@@ -126,16 +110,14 @@ public class LoginController {
 	@RequestMapping(value = "/logout")
 	public Result<Object> logout(HttpServletRequest request,HttpServletResponse response) {
 		//用户退出逻辑
-	    String token = request.getHeader(CommonConstant.X_ACCESS_TOKEN);
+	    String token = request.getHeader(DefContants.X_ACCESS_TOKEN);
 	    if(oConvertUtils.isEmpty(token)) {
 	    	return Result.error("退出登录失败！");
 	    }
 	    String username = JwtUtil.getUsername(token);
 		LoginUser sysUser = sysBaseAPI.getUserByName(username);
 	    if(sysUser!=null) {
-			//update-begin--Author:wangshuai  Date:20200714  for：登出日志没有记录人员
-			baseCommonService.addLog("用户名: "+sysUser.getRealname()+",退出成功！", CommonConstant.LOG_TYPE_1, null,sysUser);
-			//update-end--Author:wangshuai  Date:20200714  for：登出日志没有记录人员
+	    	sysBaseAPI.addLog("用户名: "+sysUser.getRealname()+",退出成功！", CommonConstant.LOG_TYPE_1, null);
 	    	log.info(" 用户名:  "+sysUser.getRealname()+",退出成功！ ");
 	    	//清空用户登录Token缓存
 	    	redisUtil.del(CommonConstant.PREFIX_USER_TOKEN + token);
@@ -262,7 +244,7 @@ public class LoginController {
 				SysUser sysUser = sysUserService.getUserByPhone(mobile);
 				if(sysUser!=null) {
 					result.error500(" 手机号已经注册，请直接登录！");
-					baseCommonService.addLog("手机号已经注册，请直接登录！", CommonConstant.LOG_TYPE_1, null);
+					sysBaseAPI.addLog("手机号已经注册，请直接登录！", CommonConstant.LOG_TYPE_1, null);
 					return result;
 				}
 				b = DySmsHelper.sendSms(mobile, obj, DySmsEnum.REGISTER_TEMPLATE_CODE);
@@ -271,10 +253,6 @@ public class LoginController {
 				SysUser sysUser = sysUserService.getUserByPhone(mobile);
 				result = sysUserService.checkUserIsEffective(sysUser);
 				if(!result.isSuccess()) {
-					String message = result.getMessage();
-					if("该用户不存在，请注册".equals(message)){
-						result.error500("该用户不存在或未绑定手机号");
-					}
 					return result;
 				}
 				
@@ -339,7 +317,7 @@ public class LoginController {
 		//用户信息
 		userInfo(sysUser, result);
 		//添加日志
-		baseCommonService.addLog("用户名: " + sysUser.getUsername() + ",登录成功！", CommonConstant.LOG_TYPE_1, null);
+		sysBaseAPI.addLog("用户名: " + sysUser.getUsername() + ",登录成功！", CommonConstant.LOG_TYPE_1, null);
 
 		return result;
 	}
@@ -371,18 +349,10 @@ public class LoginController {
 			sysUserService.updateUserDepart(username, departs.get(0).getOrgCode());
 			obj.put("multi_depart", 1);
 		} else {
-			//查询当前是否有登录部门
-			// update-begin--Author:wangshuai Date:20200805 for：如果用戶为选择部门，数据库为存在上一次登录部门，则取一条存进去
-			SysUser sysUserById = sysUserService.getById(sysUser.getId());
-			if(oConvertUtils.isEmpty(sysUserById.getOrgCode())){
-				sysUserService.updateUserDepart(username, departs.get(0).getOrgCode());
-			}
-			// update-end--Author:wangshuai Date:20200805 for：如果用戶为选择部门，数据库为存在上一次登录部门，则取一条存进去
 			obj.put("multi_depart", 2);
 		}
 		obj.put("token", token);
 		obj.put("userInfo", sysUser);
-		obj.put("sysAllDictItems", sysDictService.queryAllDictItems());
 		result.setResult(obj);
 		result.success("登录成功");
 		return result;
@@ -401,13 +371,39 @@ public class LoginController {
 		result.setResult(map);
 		return result;
 	}
+	
+	/**
+	 * 获取校验码
+	 */
+	@ApiOperation("获取验证码")
+	@GetMapping(value = "/getCheckCode")
+	public Result<Map<String,String>> getCheckCode(){
+		Result<Map<String,String>> result = new Result<Map<String,String>>();
+		Map<String,String> map = new HashMap<String,String>();
+		try {
+			String code = RandomUtil.randomString(BASE_CHECK_CODES,4);
+			String key = MD5Util.MD5Encode(code+System.currentTimeMillis(), "utf-8");
+			redisUtil.set(key, code, 60);
+			map.put("key", key);
+			//update-begin-author：taoyan date:20200210 for:TASK #3391 【bug】安全问题，返回验证码不安全
+			String encode = java.util.Base64.getEncoder().encodeToString(code.getBytes("UTF-8"));
+			map.put("code",encode);
+			//update-end-author：taoyan date:20200210 for:TASK #3391 【bug】安全问题，返回验证码不安全
+			result.setResult(map);
+			result.setSuccess(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.setSuccess(false);
+		}
+		return result;
+	}
 
 	/**
-	 * 后台生成图形验证码 ：有效
+	 * 后台生成图形验证码
 	 * @param response
 	 * @param key
 	 */
-	@ApiOperation("获取验证码")
+	@ApiOperation("获取验证码2")
 	@GetMapping(value = "/randomImage/{key}")
 	public Result<String> randomImage(HttpServletResponse response,@PathVariable String key){
 		Result<String> res = new Result<String>();
@@ -474,35 +470,13 @@ public class LoginController {
 		// 设置超时时间
 		redisUtil.set(CommonConstant.PREFIX_USER_TOKEN + token, token);
 		redisUtil.expire(CommonConstant.PREFIX_USER_TOKEN + token, JwtUtil.EXPIRE_TIME*2 / 1000);
-
 		//token 信息
 		obj.put("token", token);
 		result.setResult(obj);
 		result.setSuccess(true);
 		result.setCode(200);
-		baseCommonService.addLog("用户名: " + username + ",登录成功[移动端]！", CommonConstant.LOG_TYPE_1, null);
+		sysBaseAPI.addLog("用户名: " + username + ",登录成功[移动端]！", CommonConstant.LOG_TYPE_1, null);
 		return result;
-	}
-
-	/**
-	 * 图形验证码
-	 * @param sysLoginModel
-	 * @return
-	 */
-	@RequestMapping(value = "/checkCaptcha", method = RequestMethod.POST)
-	public Result<?> checkCaptcha(@RequestBody SysLoginModel sysLoginModel){
-		String captcha = sysLoginModel.getCaptcha();
-		String checkKey = sysLoginModel.getCheckKey();
-		if(captcha==null){
-			return Result.error("验证码无效");
-		}
-		String lowerCaseCaptcha = captcha.toLowerCase();
-		String realKey = MD5Util.MD5Encode(lowerCaseCaptcha+checkKey, "utf-8");
-		Object checkCode = redisUtil.get(realKey);
-		if(checkCode==null || !checkCode.equals(lowerCaseCaptcha)) {
-			return Result.error("验证码错误");
-		}
-		return Result.ok();
 	}
 
 }

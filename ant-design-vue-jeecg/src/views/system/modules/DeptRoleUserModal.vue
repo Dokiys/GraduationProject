@@ -7,7 +7,7 @@
     :closable="true"
     @close="close"
     :visible="visible"
-    style="overflow: auto;padding-bottom: 53px;">
+    style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
 
     <a-spin :spinning="confirmLoading">
 
@@ -78,6 +78,7 @@
         url: {
           add: "/sys/sysDepartRole/deptRoleUserAdd",
           getDeptRoleList:"/sys/sysDepartRole/getDeptRoleList",
+          getCurrentDeptRoleList:"/sys/sysDepartRole/getCurrentDeptRoleList",
           getDeptRoleByUserId:"/sys/sysDepartRole/getDeptRoleByUserId"
         },
         designNameOption: [],
@@ -102,7 +103,7 @@
         this.form.resetFields();
         this.model = Object.assign({}, record);
         this.visible = true;
-        getAction(this.url.getDeptRoleByUserId,{userId:this.userId,departId:this.currentDeptId}).then((res) => {
+        getAction(this.url.getDeptRoleByUserId,{userId:this.userId}).then((res) => {
           if (res.success) {
             var designName = [];
             for (let value of res.result) {
@@ -166,7 +167,7 @@
       },
       /** 加载desform */
       loadDesformList() {
-        getAction(this.url.getDeptRoleList, { departId: this.currentDeptId, userId:this.userId }).then((res) => {
+        getAction(this.url.getDeptRoleList, { departId: this.currentDeptId }).then((res) => {
           if (res.success) {
             this.desformList = res.result
             var designName = [];
@@ -180,6 +181,9 @@
           }
         });
       },
+      getDeptRoleName(userId){
+          //TODO
+      }
     }
 
   }

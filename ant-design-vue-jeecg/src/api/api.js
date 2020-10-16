@@ -1,6 +1,4 @@
-import { getAction, deleteAction, putAction, postAction, httpAction } from '@/api/manage'
-import Vue from 'vue'
-import {UI_CACHE_DB_DICT_DATA } from "@/store/mutation-types"
+import { getAction,deleteAction,putAction,postAction} from '@/api/manage'
 
 ////根路径
 // const doMian = "/jeecg-boot/";
@@ -55,6 +53,7 @@ const queryPermissionRule = (params)=>getAction("/sys/permission/queryPermission
 // 部门管理
 const queryDepartTreeList = (params)=>getAction("/sys/sysDepart/queryTreeList",params);
 const queryIdTree = (params)=>getAction("/sys/sysDepart/queryIdTree",params);
+const queryMyIdTree = (params)=>getAction("/sys/sysDepart/queryMyIdTree",params);
 const queryParentName   = (params)=>getAction("/sys/sysDepart/queryParentName",params);
 const searchByKeywords   = (params)=>getAction("/sys/sysDepart/searchBy",params);
 const deleteByDepartId   = (params)=>deleteAction("/sys/sysDepart/delete",params);
@@ -86,14 +85,6 @@ const editDictItem = (params)=>putAction("/sys/dictItem/edit",params);
 
 //字典标签专用（通过code获取字典数组）
 export const ajaxGetDictItems = (code, params)=>getAction(`/sys/dict/getDictItems/${code}`,params);
-//从缓存中获取字典配置
-function getDictItemsFromCache(dictCode) {
-  if (Vue.ls.get(UI_CACHE_DB_DICT_DATA) && Vue.ls.get(UI_CACHE_DB_DICT_DATA)[dictCode]) {
-    let dictItems = Vue.ls.get(UI_CACHE_DB_DICT_DATA)[dictCode];
-    console.log("-----------getDictItemsFromCache----------dictCode="+dictCode+"---- dictItems=",dictItems)
-    return dictItems;
-  }
-}
 
 //系统通告
 const doReleaseData = (params)=>getAction("/sys/annountCement/doReleaseData",params);
@@ -108,22 +99,12 @@ const getVisitInfo = (params)=>getAction("/sys/visitInfo",params);
 const queryUserByDepId = (params)=>getAction("/sys/user/queryUserByDepId",params);
 
 // 查询用户角色表里的所有信息
-// const queryUserRoleMap = (params)=>getAction("/sys/user/queryUserRoleMap",params);
+const queryUserRoleMap = (params)=>getAction("/sys/user/queryUserRoleMap",params);
 // 重复校验
 const duplicateCheck = (params)=>getAction("/sys/duplicate/check",params);
 // 加载分类字典
 const loadCategoryData = (params)=>getAction("/sys/category/loadAllData",params);
 const checkRuleByCode = (params) => getAction('/sys/checkRule/checkByCode', params)
-//加载我的通告信息
-const getUserNoticeInfo= (params)=>getAction("/sys/sysAnnouncementSend/getMyAnnouncementSend",params);
-const getTransitURL = url => `/sys/common/transitRESTful?url=${encodeURIComponent(url)}`
-// 中转HTTP请求
-export const transitRESTful = {
-  get: (url, parameter) => getAction(getTransitURL(url), parameter),
-  post: (url, parameter) => postAction(getTransitURL(url), parameter),
-  put: (url, parameter) => putAction(getTransitURL(url), parameter),
-  http: (url, parameter) => httpAction(getTransitURL(url), parameter),
-}
 
 export {
   // imgView,
@@ -152,6 +133,7 @@ export {
   queryPermissionRule,
   queryDepartTreeList,
   queryIdTree,
+  queryMyIdTree,
   queryParentName,
   searchByKeywords,
   deleteByDepartId,
@@ -167,6 +149,7 @@ export {
   getLoginfo,
   getVisitInfo,
   queryUserByDepId,
+  queryUserRoleMap,
   duplicateCheck,
   queryTreeListForRole,
   getSystemMenuList,
@@ -179,9 +162,7 @@ export {
   queryTreeListForDeptRole,
   queryDeptRolePermission,
   saveDeptRolePermission,
-  queryMyDepartTreeList,
-  getUserNoticeInfo,
-  getDictItemsFromCache
+  queryMyDepartTreeList
 }
 
 

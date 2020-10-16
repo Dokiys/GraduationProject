@@ -17,8 +17,8 @@
         :type="collapsed ? 'menu-unfold' : 'menu-fold'"
         @click="toggle"/>
 
-      <span v-if="device === 'desktop'">欢迎进入 Jeecg-Boot 企业级快速开发平台</span>
-      <span v-else>Jeecg-Boot</span>
+      <span v-if="device === 'desktop'">欢迎进入 DGohx 教务管理系统</span>
+      <span v-else>DGohx Pro</span>
 
       <user-menu :theme="theme"/>
     </div>
@@ -58,7 +58,7 @@
     components: {
       UserMenu,
       SMenu,
-      Logo,
+      Logo
     },
     mixins: [mixin],
     props: {
@@ -96,8 +96,7 @@
           topNavHeader: {},
           headerIndexRight: {},
           topSmenuStyle: {}
-        },
-        chatStatus: '',
+        }
       }
     },
     watch: {

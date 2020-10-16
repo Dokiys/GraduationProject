@@ -95,23 +95,13 @@
             <a-form-item
               :labelCol="labelCol"
               :wrapperCol="wrapperCol"
-              label="摘要">
-              <a-textarea placeholder="请输入摘要" v-decorator="['msgAbstract',validatorRules.msgAbstract]" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="24/2">
-            <a-form-item
-              :labelCol="labelCol"
-              :wrapperCol="wrapperCol"
               label="指定用户"
               v-if="userType">
               <a-select
                 mode="multiple"
                 placeholder="请选择用户"
-                :labelInValue=true
                 v-model="selectedUser"
                 @dropdownVisibleChange="selectUserIds"
-                @change="handleChange"
               >
               </a-select>
             </a-form-item>
@@ -168,15 +158,15 @@
           xs: { span: 24 },
           sm: { span: 21 },
         },
+
         confirmLoading: false,
         form: this.$form.createForm(this),
         validatorRules:{
           title:{rules: [{ required: true, message: '请输入标题!' }]},
           msgCategory:{rules: [{ required: true, message: '请选择消息类型!' }]},
           msgType:{rules: [{ required: true, message: '请选择通告对象类型!' }]},
-          endTime:{rules:[{ required: true, message: '请选择结束时间!'} ,{validator: this.endTimeValidate}]},
-          startTime:{rules:[{required: true, message: '请选择开始时间!'},{validator: this.startTimeValidate}]},
-          msgAbstract:{rules: [{ required: true, message: '请输入摘要!' }]},
+          endTime:{rules:[{validator: this.endTimeValidate}]},
+          startTime:{rules:[{validator: this.startTimeValidate}]}
         },
         url: {
           queryByIds: "/sys/user/queryByIds",
@@ -188,7 +178,6 @@
         selectedUser:[],
         disabled:false,
         msgContent:"",
-        userList:[]
       }
     },
     created () {
@@ -212,22 +201,15 @@
           this.userIds = record.userIds;
           getAction(this.url.queryByIds,{userIds:this.userIds}).then((res)=>{
             if(res.success){
-              //update--begin--autor:wangshuai-----date:20200601------for：系统公告选人后，不能删除------
-              var userList=[];
               for(var i=0;i<res.result.length;i++){
-                var user={};
-                user.label =res.result[i].realname;
-                user.key=res.result[i].id;
-                userList.push(user);
+                this.selectedUser.push(res.result[i].realname);
               }
-              this.selectedUser=userList;
-              //update--begin--autor:wangshuai-----date:20200601------for：系统公告选人后，不能删除------
               this.$refs.UserListModal.edit(res.result,this.userIds);
             }
           });
         }
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.model,'endTime','startTime','titile','msgContent','priority','msgCategory','msgType','sendStatus','msgAbstract'))
+          this.form.setFieldsValue(pick(this.model,'endTime','startTime','titile','msgContent','sender','priority','msgCategory','msgType','sendStatus','delFlag'))
         });
       },
       close () {
@@ -237,11 +219,6 @@
       },
       handleOk () {
         const that = this;
-        //当设置指定用户类型，但用户为空时，后台报错
-        if(this.userType &&!(this.userIds!=null && this.userIds.length >0)){
-            this.$message.warning('指定用户不能为空！')
-            return;
-          }
         // 触发表单验证
         this.form.validateFields((err, values) => {
           if (!err) {
@@ -264,7 +241,6 @@
               if(res.success){
                 that.$message.success(res.message);
                 that.$emit('ok');
-                that.resetUser();
               }else{
                 that.$message.warning(res.message);
               }
@@ -307,12 +283,7 @@
         this.selectedUser = [];
         this.userIds = [];
         for(var i=0;i<userList.length;i++){
-          //update--begin--autor:wangshuai-----date:20200601------for：系统公告选人后，不能删除------
-          var user={};
-          user.label =userList[i].realname;
-          user.key=userList[i].id;
-          this.selectedUser.push(user);
-          //update--end--autor:wangshuai-----date:20200601------for：系统公告选人后，不能删除------
+          this.selectedUser.push(userList[i].realname);
           this.userIds += userList[i].id+","
         }
       },
@@ -335,21 +306,8 @@
         }else{
           callback("结束时间需大于开始时间")
         }
-      },
-      handleChange(userList) {
-        if (userList) {
-          this.userIds = [];
-          var users=[];
-          for (var i = 0; i < userList.length; i++) {
-            var user={};
-            user.id=userList[i].key;
-            user.realname=userList[i].label;
-            this.userIds += userList[i].key + ',';
-            users.push(user);
-          }
-        }
-        this.$refs.UserListModal.edit(users,this.userIds);
       }
+
     }
   }
 </script>

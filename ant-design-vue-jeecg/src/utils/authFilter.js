@@ -9,10 +9,9 @@ export function disabledAuthFilter(code,formData) {
 }
 
 function nodeDisabledAuth(code,formData){
-  console.log("页面权限禁用--NODE--开始");
   let permissionList = [];
   try {
-    console.log("页面权限禁用--NODE--开始",formData);
+    //console.log("页面权限禁用--NODE--开始",obj);
     if (formData) {
       let bpmList = formData.permissionList;
       permissionList = bpmList.filter(item=>item.type=='2')
@@ -53,10 +52,10 @@ function nodeDisabledAuth(code,formData){
 }
 
 function globalDisabledAuth(code){
-  console.log("全局页面禁用权限--Global--开始");
+  //console.log("全局页面禁用权限--Global--开始");
 
-  let permissionList = [];
-  let allPermissionList = [];
+  var permissionList = [];
+  var allPermissionList = [];
 
   //let authList = Vue.ls.get(USER_AUTH);
   let authList = JSON.parse(sessionStorage.getItem(USER_AUTH) || "[]");
@@ -73,8 +72,8 @@ function globalDisabledAuth(code){
     }
   }
   //设置全局配置是否有命中
-  let  gFlag = false;//禁用命中
-  let invalidFlag = false;//无效命中
+  var  gFlag = false;//禁用命中
+  var invalidFlag = false;//无效命中
   if(allPermissionList != null && allPermissionList != "" && allPermissionList != undefined && allPermissionList.length > 0){
     for (let itemG of allPermissionList) {
       if(code === itemG.action){
@@ -117,7 +116,7 @@ function globalDisabledAuth(code){
 
 
 export function colAuthFilter(columns,pre) {
-  let authList = getNoAuthCols(pre);
+  var authList = getNoAuthCols(pre);
   const cols = columns.filter(item => {
     if (hasColoum(item,authList)) {
       return true
@@ -126,44 +125,6 @@ export function colAuthFilter(columns,pre) {
   })
   return cols
 }
-
-/**
- * 【子表行编辑】实现两个功能：
- * 1、隐藏JEditableTable无权限的字段
- * 2、禁用JEditableTable无权限的字段
- * @param columns
- * @param pre
- * @returns {*}
- */
-export function colAuthFilterJEditableTable(columns,pre) {
-  let authList = getAllShowAndDisabledAuthCols(pre);
-  const cols = columns.filter(item => {
-    let oneAuth = authList.find(auth => {
-      return auth.action === pre + item.key;
-    });
-    if(!oneAuth){
-      return true
-    }
-
-    //代码严谨处理，防止一个授权标识，配置多次
-    if(oneAuth instanceof Array){
-      oneAuth = oneAuth[0]
-    }
-
-    //禁用逻辑
-    if (oneAuth.type == '2' && !oneAuth.isAuth) {
-      item["disabled"] = true
-      return true
-    }
-    //隐藏逻辑逻辑
-    if (oneAuth.type == '1' && !oneAuth.isAuth) {
-      return false
-    }
-    return true
-  })
-  return cols
-}
-
 
 function hasColoum(item,authList){
   if (authList.includes(item.dataIndex)) {
@@ -174,10 +135,7 @@ function hasColoum(item,authList){
 
 //权限无效时不做控制，有效时控制，只能控制 显示不显示
 //根据授权码前缀获取未授权的列信息
-export function getNoAuthCols(pre){
-  if(!pre || pre.length==0){
-    return []
-  }
+function getNoAuthCols(pre){
   let permissionList = [];
   let allPermissionList = [];
 
@@ -204,32 +162,6 @@ export function getNoAuthCols(pre){
     return true;
   })
   return cols;
-}
-
-
-
-/**
- * 额外增加方法【用于行编辑组件】
- * date: 2020-04-05
- * author: scott
- * @param pre
- * @returns {*[]}
- */
-function getAllShowAndDisabledAuthCols(pre){
-  //用户拥有的权限
-  let userAuthList = JSON.parse(sessionStorage.getItem(USER_AUTH) || "[]");
-  //全部权限配置
-  let allAuthList = JSON.parse(sessionStorage.getItem(SYS_BUTTON_AUTH) || "[]");
-
-  let newAllAuthList = allAuthList.map(function (item, index) {
-    let hasAuthArray = userAuthList.filter(u => u.action===item.action );
-    if (hasAuthArray && hasAuthArray.length>0) {
-      item["isAuth"] = true
-    }
-    return item;
-  })
-
-  return newAllAuthList;
 }
 
 function startWith(str,pre) {

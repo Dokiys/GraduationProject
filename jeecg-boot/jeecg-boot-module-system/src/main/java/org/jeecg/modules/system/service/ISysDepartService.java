@@ -59,7 +59,7 @@ public interface ISysDepartService extends IService<SysDepart>{
      * @param keyWord
      * @return
      */
-    List<SysDepartTreeModel> searhBy(String keyWord,String myDeptSearch,String departIds);
+    List<SysDepartTreeModel> searhBy(String keyWord);
     
     /**
      * 根据部门id删除并删除其可能存在的子级部门
@@ -102,9 +102,11 @@ public interface ISysDepartService extends IService<SysDepart>{
      * @return
      */
     List<String> getMySubDepIdsByDepId(String departIds);
+
     /**
-     * 根据关键字获取部门信息（通讯录）
+     * 查询指定
+     * @param classIds
      * @return
      */
-    List<SysDepartTreeModel> queryTreeByKeyWord(String keyWord);
+    Integer queryUserNumByIds(String classIds);
 }

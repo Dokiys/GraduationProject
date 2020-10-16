@@ -2,9 +2,11 @@ package org.jeecg.modules.system.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.jeecg.modules.system.entity.SysDepartRoleUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.mybatis.spring.annotation.MapperScan;
 
 /**
  * @Description: 部门角色人员信息
@@ -14,4 +16,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface SysDepartRoleUserMapper extends BaseMapper<SysDepartRoleUser> {
 
+    List<SysDepartRoleUser> listByUserIds(List<String> userIds);
+
+    List<String> getByUserId(String userId);
 }

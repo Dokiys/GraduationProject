@@ -1,8 +1,5 @@
 package org.jeecg.modules.message.util;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import org.jeecg.modules.message.entity.SysMessage;
 import org.jeecg.modules.message.entity.SysMessageTemplate;
 import org.jeecg.modules.message.handle.enums.SendMsgStatusEnum;
@@ -13,8 +10,6 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +27,6 @@ public class PushMsgUtil {
     @Autowired
     private ISysMessageTemplateService sysMessageTemplateService;
 
-    @Autowired
-    private Configuration freemarkerConfig;
     /**
      * @param msgType 消息类型 1短信 2邮件 3微信
      * @param templateCode    消息模板码
@@ -51,19 +44,13 @@ public class PushMsgUtil {
             String title = sysSmsTemplate.getTemplateName();
             //模板内容
             String content = sysSmsTemplate.getTemplateContent();
-            StringWriter stringWriter = new StringWriter();
-            Template template = null;
-            try {
-                template = new Template("SysMessageTemplate", content, freemarkerConfig);
-                template.process(map, stringWriter);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            } catch (TemplateException e) {
-                e.printStackTrace();
-                return false;
+            if(map!=null) {
+            	 for (Map.Entry<String, String> entry : map.entrySet()) {
+                     String str = "${" + entry.getKey() + "}";
+                     title = title.replace(str, entry.getValue());
+                     content = content.replace(str, entry.getValue());
+                 }
             }
-            content = stringWriter.toString();
             sysMessage.setEsTitle(title);
             sysMessage.setEsContent(content);
             sysMessage.setEsParam(JSONObject.toJSONString(map));
@@ -76,5 +63,4 @@ public class PushMsgUtil {
         }
         return false;
     }
-
 }

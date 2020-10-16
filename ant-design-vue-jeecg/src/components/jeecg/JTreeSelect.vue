@@ -2,7 +2,6 @@
   <a-tree-select
     allowClear
     labelInValue
-    :getPopupContainer="(node) => node.parentNode"
     style="width: 100%"
     :disabled="disabled"
     :dropdownStyle="{ maxHeight: '400px', overflow: 'auto' }"
@@ -236,6 +235,7 @@
           }else{
             try {
               let test=JSON.parse(mycondition);
+              console.log("aaaaasdsdd",typeof test)
               if(typeof test == 'object' && test){
                 resolve()
               }else{

@@ -1,13 +1,13 @@
 <template>
-  <j-modal
+  <a-modal
     :width="modalWidth"
     :visible="visible"
     :title="title"
-    switchFullscreen
     @ok="handleSubmit"
     @cancel="close"
-    style="top:50px"
     cancelText="关闭"
+    style="margin-top: -70px"
+    wrapClassName="ant-modal-cust-warp"
   >
     <a-row :gutter="10" style="background-color: #ececec; padding: 10px; margin: -10px">
       <a-col :md="6" :sm="24">
@@ -51,7 +51,7 @@
         </a-card>
       </a-col>
     </a-row>
-  </j-modal>
+  </a-modal>
 </template>
 
 <script>

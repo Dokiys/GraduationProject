@@ -170,11 +170,10 @@
         this.edit(selectUser,userIds);
       },
       edit(selectUser,userIds){
-        //控制台报错
-        if(userIds&&userIds.length>0){
-          this.selectedRowKeys = userIds.split(',');
-        }else{
+        if(!userIds){
           this.selectedRowKeys = []
+        }else{
+          this.selectedRowKeys = userIds.split(',');
         }
         if(!selectUser){
           this.selectionRows=[]
@@ -183,7 +182,7 @@
           that.selectionRows=[];
           selectUser.forEach(function(record,index){
             console.log(record)
-            that.selectionRows.push({id: that.selectedRowKeys[index],realname:record.label})
+            that.selectionRows.push({id: that.selectedRowKeys[index],realname:record})
           })
           // this.selectionRows = selectUser;
         }

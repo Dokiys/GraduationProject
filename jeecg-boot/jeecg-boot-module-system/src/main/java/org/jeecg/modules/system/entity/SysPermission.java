@@ -29,7 +29,7 @@ public class SysPermission implements Serializable {
 	/**
 	 * id
 	 */
-	@TableId(type = IdType.ASSIGN_ID)
+	@TableId(type = IdType.ID_WORKER_STR)
 	private String id;
 
 	/**
@@ -164,7 +164,6 @@ public class SysPermission implements Serializable {
     		this.id = "9502685863ab87f0ad1134142788a385";
         	this.name="首页";
         	this.component="dashboard/Analysis";
-        	this.componentName="dashboard-analysis";
         	this.url="/dashboard/analysis";
         	this.icon="home";
         	this.menuType=0;

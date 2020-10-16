@@ -1,12 +1,10 @@
 package org.jeecg.common.util.dynamic.db;
 
-import com.alibaba.druid.pool.DruidDataSource;
-import org.jeecg.common.api.CommonAPI;
-import org.jeecg.common.constant.CacheConstant;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.jeecg.common.system.api.ISysBaseAPI;
 import org.jeecg.common.system.vo.DynamicDataSourceModel;
-import org.jeecg.common.util.RedisUtil;
 import org.jeecg.common.util.SpringContextUtils;
-import org.springframework.data.redis.core.RedisTemplate;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,15 +13,21 @@ import java.util.Map;
  * 数据源缓存池
  */
 public class DataSourceCachePool {
-    /** 数据源连接池缓存【本地 class缓存 - 不支持分布式】 */
-    private static Map<String, DruidDataSource> dbSources = new HashMap<>();
-    private static RedisTemplate<String, Object> redisTemplate;
 
-    private static RedisTemplate<String, Object> getRedisTemplate() {
-        if (redisTemplate == null) {
-            redisTemplate = (RedisTemplate<String, Object>) SpringContextUtils.getBean("redisTemplate");
-        }
-        return redisTemplate;
+    /**
+     * DynamicDataSourceModel的 code 和 id 的对应关系。key为id，value为code
+     */
+    private static Map<String, String> dynamicDbSourcesIdToCode = new HashMap<>();
+    /**
+     * DynamicDataSourceModel的缓存。key为code，value为数据源
+     */
+    private static Map<String, DynamicDataSourceModel> dynamicDbSourcesCache = new HashMap<>();
+
+    /**
+     * 动态数据源参数配置【缓存】
+     */
+    public static Map<String, DynamicDataSourceModel> getCacheAllDynamicDataSourceModel() {
+        return dynamicDbSourcesCache;
     }
 
     /**
@@ -33,19 +37,22 @@ public class DataSourceCachePool {
      * @return
      */
     public static DynamicDataSourceModel getCacheDynamicDataSourceModel(String dbKey) {
-        String redisCacheKey = CacheConstant.SYS_DYNAMICDB_CACHE + dbKey;
-        if (getRedisTemplate().hasKey(redisCacheKey)) {
-            return (DynamicDataSourceModel) getRedisTemplate().opsForValue().get(redisCacheKey);
-        }
-        CommonAPI commonAPI = SpringContextUtils.getBean(CommonAPI.class);
-        DynamicDataSourceModel dbSource = commonAPI.getDynamicDbSourceByCode(dbKey);
-        if (dbSource != null) {
-            getRedisTemplate().opsForValue().set(redisCacheKey, dbSource);
+        DynamicDataSourceModel dbSource = dynamicDbSourcesCache.get(dbKey);
+        if (dbSource == null) {
+            ISysBaseAPI sysBaseAPI = SpringContextUtils.getBean(ISysBaseAPI.class);
+            dbSource = sysBaseAPI.getDynamicDbSourceByCode(dbKey);
+            dynamicDbSourcesCache.put(dbKey, dbSource);
+            dynamicDbSourcesIdToCode.put(dbSource.getId(), dbKey);
         }
         return dbSource;
     }
 
-    public static DruidDataSource getCacheBasicDataSource(String dbKey) {
+    /**
+     * 动态数据源连接池【本地class缓存 - 不支持分布式】
+     */
+    private static Map<String, BasicDataSource> dbSources = new HashMap<>();
+
+    public static BasicDataSource getCacheBasicDataSource(String dbKey) {
         return dbSources.get(dbKey);
     }
 
@@ -55,38 +62,26 @@ public class DataSourceCachePool {
      * @param dbKey
      * @param db
      */
-    public static void putCacheBasicDataSource(String dbKey, DruidDataSource db) {
+    public static void putCacheBasicDataSource(String dbKey, BasicDataSource db) {
         dbSources.put(dbKey, db);
     }
 
     /**
      * 清空数据源缓存
      */
-    public static void cleanAllCache() {
-        //关闭数据源连接
-        for(Map.Entry<String, DruidDataSource> entry : dbSources.entrySet()){
-            String dbkey = entry.getKey();
-            DruidDataSource druidDataSource = entry.getValue();
-            if(druidDataSource!=null && druidDataSource.isEnable()){
-                druidDataSource.close();
-            }
-            //清空redis缓存
-            getRedisTemplate().delete(CacheConstant.SYS_DYNAMICDB_CACHE + dbkey);
-        }
-        //清空缓存
+    public static void cleanCacheBasicDataSource() {
         dbSources.clear();
     }
 
     public static void removeCache(String dbKey) {
-        //关闭数据源连接
-        DruidDataSource druidDataSource = dbSources.get(dbKey);
-        if(druidDataSource!=null && druidDataSource.isEnable()){
-            druidDataSource.close();
-        }
-        //清空redis缓存
-        getRedisTemplate().delete(CacheConstant.SYS_DYNAMICDB_CACHE + dbKey);
-        //清空缓存
         dbSources.remove(dbKey);
+        dynamicDbSourcesCache.remove(dbKey);
+    }
+
+    public static void removeCacheById(String dbId) {
+        String dbKey = dynamicDbSourcesIdToCode.get(dbId);
+        dbSources.remove(dbKey);
+        dynamicDbSourcesCache.remove(dbKey);
     }
 
 }

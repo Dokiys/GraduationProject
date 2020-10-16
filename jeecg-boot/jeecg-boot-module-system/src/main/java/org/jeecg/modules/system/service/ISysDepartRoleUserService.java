@@ -15,10 +15,7 @@ public interface ISysDepartRoleUserService extends IService<SysDepartRoleUser> {
 
     void deptRoleUserAdd(String userId,String newRoleId,String oldRoleId);
 
-    /**
-     * 取消用户与部门关联，删除关联关系
-     * @param userIds
-     * @param depId
-     */
-    void removeDeptRoleUser(List<String> userIds,String depId);
+    List<SysDepartRoleUser>  listByUserIds(List<String> userIds);
+
+    List<String> getByUserId(String id);
 }

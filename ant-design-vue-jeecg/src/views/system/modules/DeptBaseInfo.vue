@@ -4,10 +4,10 @@
       <a-form-item
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
-        label="机构名称">
+        label="名称">
         <a-input style="border:0px;" placeholder="" v-decorator="['departName', {}]"/>
       </a-form-item>
-      <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="上级部门">
+      <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="院系">
         <a-tree-select
           disabled
           style="width:100%;border: 0px;border: none;outline:none;"
@@ -20,10 +20,10 @@
       <a-form-item
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
-        label="机构编码">
+        label="编码">
         <a-input style="border:0px;" placeholder="" v-decorator="['orgCode', {}]"/>
       </a-form-item>
-      <a-form-item
+      <!-- <a-form-item
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
         label="机构类型">
@@ -38,7 +38,7 @@
               岗位
             </a-radio>
           </a-radio-group>
-      </a-form-item>
+      </a-form-item> -->
       <a-form-item
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
@@ -48,13 +48,13 @@
       <a-form-item
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
-        label="手机号">
+        label="负责人联系方式">
         <a-input style="border:0px;" placeholder="" v-decorator="['mobile', {}]"/>
       </a-form-item>
       <a-form-item
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
-        label="地址">
+        label="负责人姓名">
         <a-input style="border:0px;" placeholder="" v-decorator="['address', {}]"/>
       </a-form-item>
       <a-form-item

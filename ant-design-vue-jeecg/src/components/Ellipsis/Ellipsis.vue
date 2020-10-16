@@ -1,20 +1,31 @@
 <script>
+  import Tooltip from 'ant-design-vue/es/tooltip'
   import { cutStrByFullLength, getStrFullLength } from '@/components/_util/StringUtil'
+/*
+  const isSupportLineClamp = document.body.style.webkitLineClamp !== undefined;
+
+  const TooltipOverlayStyle = {
+    overflowWrap: 'break-word',
+    wordWrap: 'break-word',
+  };
+*/
 
   export default {
     name: 'Ellipsis',
+    components: {
+      Tooltip
+    },
     props: {
       prefixCls: {
         type: String,
         default: 'ant-pro-ellipsis'
       },
       tooltip: {
-        type: Boolean,
-        default: true,
+        type: Boolean
       },
       length: {
         type: Number,
-        default: 25,
+        required: true
       },
       lines: {
         type: Number,
@@ -25,25 +36,28 @@
         default: false
       }
     },
-    methods: {},
-    render() {
-      const { tooltip, length } = this.$props
-      let text = ''
-      // 处理没有default插槽时的特殊情况
-      if (this.$slots.default) {
-        text = this.$slots.default.map(vNode => vNode.text).join('')
-      }
-      // 判断是否显示 tooltip
-      if (tooltip && getStrFullLength(text) > length) {
+    methods: {
+      getStrDom (str) {
         return (
-          <a-tooltip>
-            <template slot="title">{text}</template>
-            <span>{cutStrByFullLength(text, this.length) + '…'}</span>
-          </a-tooltip>
+          <span>{ cutStrByFullLength(str, this.length) + '...' }</span>
         )
-      } else {
-        return (<span>{text}</span>)
+      },
+      getTooltip ( fullStr) {
+        return (
+          <Tooltip>
+            <template slot="title">{ fullStr }</template>
+            { this.getStrDom(fullStr) }
+          </Tooltip>
+        )
       }
+    },
+    render () {
+      const { tooltip, length } = this.$props
+      let str = this.$slots.default.map(vNode => vNode.text).join("")
+      const strDom = tooltip && getStrFullLength(str) > length ? this.getTooltip(str) : this.getStrDom(str);
+      return (
+        strDom
+      )
     }
   }
 </script>

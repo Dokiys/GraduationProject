@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.bysj.mapper.BysjCourseInfoMapper">
+
+    <select id="queryCourseIdsByStudentId" resultType="String">
+        SELECT
+            bci.id
+        FROM
+            sys_user_depart sud,
+            bysj_course_arrange bca,
+            bysj_course_info bci
+        WHERE sud.dep_id = bca.class_id
+            AND bca.course_id = bci.id
+        <if test="studentId != null and studentId != ''">
+            AND sud.user_id = #{studentId,jdbcType=VARCHAR};
+        </if>
+    </select>
+
+</mapper>

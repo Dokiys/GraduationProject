@@ -5,13 +5,13 @@
 
         <!-- 按钮操作区域 -->
         <a-row style="margin-left: 14px">
-          <a-button @click="handleAdd(1)" type="primary">添加部门</a-button>
-          <a-button @click="handleAdd(2)" type="primary">添加下级</a-button>
-          <a-button type="primary" icon="download" @click="handleExportXls('部门信息')">导出</a-button>
-          <a-upload name="file" :showUploadList="false" :multiple="false" :headers="tokenHeader" :action="importExcelUrl" @change="handleImportExcel">
+          <a-button @click="handleAdd(1)" type="primary" v-show="this.currSelected.orgType != 3">添加院系/班级</a-button>
+          <!-- <a-button @click="handleAdd(1)" type="primary">添加班级</a-button> -->
+          <!-- <a-button type="primary" icon="download" @click="handleExportXls('班级信息')">导出</a-button> -->
+          <!-- <a-upload name="file" :showUploadList="false" :multiple="false" :headers="tokenHeader" :action="importExcelUrl" @change="handleImportExcel">
             <a-button type="primary" icon="import">导入</a-button>
-          </a-upload>
-          <a-button title="删除多条数据" @click="batchDel" type="default">批量删除</a-button>
+          </a-upload> -->
+          <!-- <a-button title="删除多条数据" @click="batchDel" type="default">批量删除</a-button> -->
           <!--<a-button @click="refresh" type="default" icon="reload" :loading="loading">刷新</a-button>-->
         </a-row>
         <div style="background: #fff;padding-left:16px;height: 100%; margin-top: 5px">
@@ -21,7 +21,7 @@
               <a v-if="this.currSelected.title" style="margin-left: 10px" @click="onClearSelected">取消选择</a>
             </div>
           </a-alert>
-          <a-input-search @search="onSearch" style="width:100%;margin-top: 10px" placeholder="请输入部门名称"/>
+          <a-input-search @search="onSearch" style="width:100%;margin-top: 10px" placeholder="请输入班级名称"/>
           <!-- 树-->
           <a-col :md="10" :sm="24">
             <template>
@@ -53,7 +53,7 @@
         </div>
       </a-card>
       <!---- author:os_chengtgen -- date:20190827 --  for:切换父子勾选模式 =======------>
-      <div class="drawer-bootom-button">
+      <!-- <div class="drawer-bootom-button">
         <a-dropdown :trigger="['click']" placement="topCenter">
           <a-menu slot="overlay">
             <a-menu-item key="1" @click="switchCheckStrictly(1)">父子关联</a-menu-item>
@@ -64,24 +64,24 @@
             <a-menu-item key="6" @click="closeAll">合并所有</a-menu-item>
           </a-menu>
           <a-button>
-            树操作 <a-icon type="up" />
+            树111操作 <a-icon type="up" />
           </a-button>
         </a-dropdown>
-      </div>
+      </div> -->
       <!---- author:os_chengtgen -- date:20190827 --  for:切换父子勾选模式 =======------>
     </a-col>
     <a-col :md="12" :sm="24">
       <a-tabs defaultActiveKey="1">
         <a-tab-pane tab="基本信息" key="1" >
-          <a-card :bordered="false" v-if="selectedKeys.length>0">
+          <a-card :bordered="false">
             <a-form :form="form">
               <a-form-item
                 :labelCol="labelCol"
                 :wrapperCol="wrapperCol"
-                label="机构名称">
-                <a-input placeholder="请输入机构/部门名称" v-decorator="['departName', validatorRules.departName ]"/>
+                label="名称">
+                <a-input placeholder="请输入名称" v-decorator="['departName', validatorRules.departName ]"/>
               </a-form-item>
-              <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="上级部门">
+              <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="院系">
                 <a-tree-select
                   style="width:100%"
                   :dropdownStyle="{maxHeight:'200px',overflow:'auto'}"
@@ -94,27 +94,27 @@
               <a-form-item
                 :labelCol="labelCol"
                 :wrapperCol="wrapperCol"
-                label="机构编码">
-                <a-input disabled placeholder="请输入机构编码" v-decorator="['orgCode', validatorRules.orgCode ]"/>
+                label="班级编码">
+                <a-input disabled placeholder="请输入班级编码" v-decorator="['orgCode', validatorRules.orgCode ]"/>
               </a-form-item>
               <a-form-item
                 :labelCol="labelCol"
                 :wrapperCol="wrapperCol"
-                label="机构类型">
+                label="班级类型">
                 <template v-if="orgCategoryDisabled">
-                  <a-radio-group v-decorator="['orgCategory',validatorRules.orgCategory]" placeholder="请选择机构类型">
+                  <a-radio-group v-decorator="['orgCategory',validatorRules.orgCategory]" placeholder="请选择班级类型">
                     <a-radio value="1">
-                      公司
+                      普通
                     </a-radio>
                   </a-radio-group>
                 </template>
                 <template v-else>
-                  <a-radio-group v-decorator="['orgCategory',validatorRules.orgCategory]" placeholder="请选择机构类型">
+                  <a-radio-group v-decorator="['orgCategory',validatorRules.orgCategory]" placeholder="请选择班级类型">
                     <a-radio value="2">
-                      部门
+                      普通
                     </a-radio>
                     <a-radio value="3">
-                      岗位
+                      特殊
                     </a-radio>
                   </a-radio-group>
                 </template>
@@ -128,14 +128,14 @@
               <a-form-item
                 :labelCol="labelCol"
                 :wrapperCol="wrapperCol"
-                label="手机号">
+                label="负责人联系方式">
                 <a-input placeholder="请输入手机号" v-decorator="['mobile', {'initialValue':''}]"/>
               </a-form-item>
               <a-form-item
                 :labelCol="labelCol"
                 :wrapperCol="wrapperCol"
-                label="地址">
-                <a-input placeholder="请输入地址" v-decorator="['address', {'initialValue':''}]"/>
+                label="负责人姓名">
+                <a-input placeholder="请输入负责人姓名" v-decorator="['address', {'initialValue':''}]"/>
               </a-form-item>
               <a-form-item
                 :labelCol="labelCol"
@@ -146,18 +146,13 @@
             </a-form>
             <div class="anty-form-btn">
               <a-button @click="emptyCurrForm" type="default" htmlType="button" icon="sync">重置</a-button>
-              <a-button @click="submitCurrForm" type="primary" htmlType="button" icon="form">保存</a-button>
+              <a-button @click="submitCurrForm" type="primary" htmlType="button" icon="form">修改并保存</a-button>
             </div>
           </a-card>
-          <a-card v-else >
-            <a-empty>
-              <span slot="description"> 请先选择一个部门! </span>
-            </a-empty>
-          </a-card>
         </a-tab-pane>
-        <a-tab-pane tab="部门权限" key="2" forceRender>
+        <!-- <a-tab-pane tab="班级权限" key="2" forceRender>
           <depart-auth-modal ref="departAuth"/>
-        </a-tab-pane>
+        </a-tab-pane> -->
       </a-tabs>
 
     </a-col>
@@ -174,30 +169,30 @@
   // 表头
   const columns = [
     {
-      title: '机构名称',
+      title: '班级名称',
       dataIndex: 'departName'
     },
     {
-      title: '机构类型',
+      title: '班级类型',
       align: 'center',
       dataIndex: 'orgType'
     },
     {
-      title: '机构编码',
+      title: '班级编码',
       dataIndex: 'orgCode',
     },
     {
-      title: '手机号',
+      title: '负责人联系方式',
       dataIndex: 'mobile'
     },
-    {
-      title: '传真',
-      dataIndex: 'fax'
-    },
-    {
-      title: '地址',
-      dataIndex: 'address'
-    },
+    // {
+    //   title: '传真',
+    //   dataIndex: 'fax'
+    // },
+    // {
+    //   title: '地址',
+    //   dataIndex: 'address'
+    // },
     {
       title: '排序',
       align: 'center',
@@ -229,7 +224,6 @@
         visible: false,
         departTree: [],
         rightClickSelectedKey: '',
-        rightClickSelectedOrgCode: '',
         hiding: true,
         model: {},
         dropTrigger: '',
@@ -258,9 +252,9 @@
           edges: []
         },
         validatorRules: {
-          departName: {rules: [{required: true, message: '请输入机构/部门名称!'}]},
-          orgCode: {rules: [{required: true, message: '请输入机构编码!'}]},
-          orgCategory: {rules: [{required: true, message: '请输入机构类型!'}]},
+          departName: {rules: [{required: true, message: '请输入班级名称!'}]},
+          orgCode: {rules: [{required: true, message: '请输入班级编码!'}]},
+          orgCategory: {rules: [{required: true, message: '请输入班级类型!'}]},
           mobile: {rules: [{validator: this.validateMobile}]}
         },
         url: {
@@ -288,8 +282,6 @@
         that.departTree = []
         queryDepartTreeList().then((res) => {
           if (res.success) {
-            //部门全选后，再添加部门，选中数量增多
-            this.allTreeKeys = [];
             for (let i = 0; i < res.result.length; i++) {
               let temp = res.result[i]
               that.treeData.push(temp)
@@ -319,7 +311,6 @@
         this.dropTrigger = 'contextmenu'
         console.log(node.node.eventKey)
         this.rightClickSelectedKey = node.node.eventKey
-        this.rightClickSelectedOrgCode = node.node.dataRef.orgCode
       },
       onExpand(expandedKeys) {
         console.log('onExpand', expandedKeys)
@@ -337,7 +328,7 @@
           this.dropTrigger = ''
         }
       },
-      // 右键店家下拉关闭下拉框
+      // 右键点击下拉关闭下拉框
       closeDrop() {
         this.dropTrigger = ''
       },
@@ -348,7 +339,12 @@
         console.log(this.checkedKeys)
         if (this.checkedKeys.length <= 0) {
           this.$message.warning('请选择一条记录！')
-        } else {
+        }
+        //判断根节点是否包含其中，'08a20a39021141a384953ec0d0e0e6b7'表示根节点
+        else if(this.checkedKeys.indexOf('08a20a39021141a384953ec0d0e0e6b7')!= -1){
+          this.$message.warning('请不要选择根节点！')
+        } 
+        else {
           var ids = ''
           for (var a = 0; a < this.checkedKeys.length; a++) {
             ids += this.checkedKeys[a] + ','
@@ -421,20 +417,18 @@
         this.selectedKeys = [record.key]
         this.model.parentId = record.parentId
         this.setValuesToForm(record)
-        this.$refs.departAuth.show(record.id);
+        // this.$refs.departAuthModal.show(record.id);
 
       },
-      // 触发onSelect事件时,为部门树右侧的form表单赋值
+      // 触发onSelect事件时,为班级树右侧的form表单赋值
       setValuesToForm(record) {
         if(record.orgCategory == '1'){
           this.orgCategoryDisabled = true;
         }else{
           this.orgCategoryDisabled = false;
         }
-        this.$nextTick(() => {
-          this.form.getFieldDecorator('fax', {initialValue: ''})
-          this.form.setFieldsValue(pick(record, 'departName','orgCategory', 'orgCode', 'departOrder', 'mobile', 'fax', 'address', 'memo'))
-        })
+        this.form.getFieldDecorator('fax', {initialValue: ''})
+        this.form.setFieldsValue(pick(record, 'departName','orgCategory', 'orgCode', 'departOrder', 'mobile', 'fax', 'address', 'memo'))
       },
       getCurrSelectedTitle() {
         return !this.currSelected.title ? '' : this.currSelected.title
@@ -445,7 +439,7 @@
         this.currSelected = {}
         this.form.resetFields()
         this.selectedKeys = []
-        this.$refs.departAuth.departId = ''
+        // this.$refs.departAuth.departId = ''
       },
       handleNodeTypeChange(val) {
         this.currSelected.nodeType = val
@@ -460,7 +454,7 @@
         this.form.validateFields((err, values) => {
           if (!err) {
             if (!this.currSelected.id) {
-              this.$message.warning('请点击选择要修改部门!')
+              this.$message.warning('请点击选择要修改班级!')
               return
             }
 
@@ -492,42 +486,66 @@
       },
       handleAdd(num) {
         if (num == 1) {
-          this.$refs.departModal.add()
-          this.$refs.departModal.title = '新增'
-        } else if (num == 2) {
           let key = this.currSelected.key
           if (!key) {
-            this.$message.warning('请先点击选中上级部门！')
+            this.$message.warning('请先选中一条记录!')
             return false
           }
-          this.$refs.departModal.add(this.selectedKeys)
-          this.$refs.departModal.title = '新增'
-        } else {
+          if(this.currSelected.departName == '教务处'){
+            this.$refs.departModal.add(this.selectedKeys)
+            this.$refs.departModal.title = '新增'
+            this.$refs.departModal.addName = "院系名称"
+            this.$refs.departModal.parentNodeId = this.currSelected.id;
+          }else{
+            this.$refs.departModal.add()
+            this.$refs.departModal.title = '新增'
+            this.$refs.departModal.addName = "班级名称"
+            this.$refs.departModal.parentNodeId = this.currSelected.id;
+          }
+        }else {
           this.$refs.departModal.add(this.rightClickSelectedKey)
-          this.$refs.departModal.title = '新增'
+          if(this.currSelected.departName == '教务处'){
+            this.$refs.departModal.add(this.selectedKeys)
+            this.$refs.departModal.title = '新增'
+            this.$refs.departModal.addName = "院系名称"
+            this.$refs.departModal.parentNodeId = this.rightClickSelectedKey;
+          }else{
+            this.$refs.departModal.add()
+            this.$refs.departModal.title = '新增'
+            this.$refs.departModal.addName = "班级名称"
+            this.$refs.departModal.parentNodeId = this.rightClickSelectedKey;
+          }
         }
+        // if (num == 1) {
+        //   let key = this.currSelected.key
+        //   if (!key) {
+        //     this.$message.warning('请先选中一条记录!')
+        //     return false
+        //   }
+        //   this.$refs.departModal.add()
+        //   this.$refs.departModal.title = '新增'
+        //   this.$refs.departModal.addName = "班级名称"
+        // } else if (num == 2) {
+        //   let key = this.currSelected.key
+        //   if (!key) {
+        //     this.$message.warning('请先选中一条记录!')
+        //     return false
+        //   }
+        //   this.$refs.departModal.add(this.selectedKeys)
+        //   this.$refs.departModal.title = '新增'
+        //   this.$refs.departModal.addName = "院系名称"
+        // } else {
+        //   this.$refs.departModal.add(this.rightClickSelectedKey)
+        //   this.$refs.departModal.title = '新增'
+        // }
       },
       handleDelete() {
-        var that = this
-        this.$confirm({
-          title: '确认删除',
-          content: '确定要删除此部门以及子节点数据吗?',
-          onOk: function () {
-            deleteByDepartId({id: that.rightClickSelectedKey}).then((resp) => {
-              if (resp.success) {
-                //删除成功后，去除已选中中的数据
-                that.checkedKeys.splice(that.checkedKeys.findIndex(key => key === that.rightClickSelectedKey), 1);
-                that.$message.success('删除成功!')
-                that.loadTree()
-                //删除后同步清空右侧基本信息内容
-                let orgCode=that.form.getFieldValue("orgCode");
-                if(orgCode && orgCode === that.rightClickSelectedOrgCode){
-                  that.onClearSelected()
-                }
-              } else {
-                that.$message.warning('删除失败!')
-              }
-            })
+        deleteByDepartId({id: this.rightClickSelectedKey}).then((resp) => {
+          if (resp.success) {
+            this.$message.success('删除成功!')
+            this.loadTree()
+          } else {
+            this.$message.warning('删除失败!')
           }
         })
       },

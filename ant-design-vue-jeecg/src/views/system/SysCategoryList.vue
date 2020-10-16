@@ -4,10 +4,10 @@
     <!-- 操作按钮区域 -->
     <div class="table-operator">
       <a-button @click="handleAdd" type="primary" icon="plus">新增</a-button>
-      <a-button type="primary" icon="download" @click="handleExportXls('分类字典')">导出</a-button>
-      <a-upload name="file" :showUploadList="false" :multiple="false" :headers="tokenHeader"  :action="importExcelUrl" @change="handleImportExcel">
+      <!--<a-button type="primary" icon="download" @click="handleExportXls('分类字典')">导出</a-button>
+      <a-upload name="file" :showUploadList="false" :multiple="false" :action="importExcelUrl" @change="handleImportExcel">
         <a-button type="primary" icon="import">导入</a-button>
-      </a-upload>
+      </a-upload>-->
       <a-dropdown v-if="selectedRowKeys.length > 0">
         <a-menu slot="overlay">
           <a-menu-item key="1" @click="batchDel"><a-icon type="delete"/>删除</a-menu-item>
@@ -39,11 +39,9 @@
         <span slot="action" slot-scope="text, record">
           <a @click="handleEdit(record)">编辑</a>
           <a-divider type="vertical" />
-          <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete(record)">
+          <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete(record.id)">
             <a>删除</a>
           </a-popconfirm>
-          <a-divider type="vertical" />
-          <a @click="handleAddSub(record)">添加下级</a>
         </span>
 
       </a-table>
@@ -58,7 +56,6 @@
   import { getAction } from '@/api/manage'
   import { JeecgListMixin } from '@/mixins/JeecgListMixin'
   import SysCategoryModal from './modules/SysCategoryModal'
-  import { deleteAction } from '@/api/manage'
   
   export default {
     name: "SysCategoryList",
@@ -72,12 +69,12 @@
         // 表头
         columns: [
           {
-            title:'分类名称',
+            title:'类型名称',
             align:"left",
             dataIndex: 'name'
           },
           {
-            title:'分类编码',
+            title:'类型编码',
             align:"left",
             dataIndex: 'code'
           },
@@ -100,8 +97,7 @@
         hasChildrenField:"hasChild",
         pidField:"pid",
         dictOptions:{
-        },
-        subExpandedKeys:[],
+        } 
       }
     },
     computed: {
@@ -232,8 +228,6 @@
                 this.dataSource = [...this.dataSource]
                 resolve()
               }else{
-                row.children=''
-                row.hasChildrenField='0'
                 reject()
               }
             }else{
@@ -249,45 +243,6 @@
               this.parentFormData = arr[i]
             }else{
               this.getFormDataById(id,arr[i].children)
-            }
-          }
-        }
-      },
-      handleAddSub(record){
-        this.subExpandedKeys = [];
-        this.getExpandKeysByPid(record.id,this.dataSource,this.dataSource)
-        this.$refs.modalForm.subExpandedKeys = this.subExpandedKeys;
-        this.$refs.modalForm.title = "添加子分类";
-        this.$refs.modalForm.edit({'pid':record.id});
-        this.$refs.modalForm.disableSubmit = false;
-      },
-      handleDelete: function (record) {
-        let that = this;
-        deleteAction(that.url.delete, {id: record.id}).then((res) => {
-          if (res.success) {
-            if (record.pid && record.pid!='0') {
-              let formData = {pid: record.pid};
-              that.$message.success(res.message);
-              that.subExpandedKeys = [];
-              that.getExpandKeysByPid(record.pid, this.dataSource, this.dataSource)
-              that.addOk(formData, this.subExpandedKeys.reverse())
-            } else {
-              that.loadData();
-            }
-          } else {
-            that.$message.warning(res.message);
-          }
-        });
-      },
-      // 添加子分类时获取所有父级id
-      getExpandKeysByPid(pid,arr,all){
-        if(pid && arr && arr.length>0){
-          for(let i=0;i<arr.length;i++){
-            if(arr[i].id==pid){
-              this.subExpandedKeys.push(arr[i].id)
-              this.getExpandKeysByPid(arr[i]['pid'],all,all)
-            }else{
-              this.getExpandKeysByPid(pid,arr[i].children,all)
             }
           }
         }

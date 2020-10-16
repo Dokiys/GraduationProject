@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.bysj.mapper.BysjScoreInfoMapper">
+
+    <select id="pageList" resultType="org.jeecg.modules.bysj.entity.BysjScoreInfoVO">
+        SELECT
+        bsi.id id,
+        bci.course_name courseName,
+        sda.depart_name className,
+        bci.course_type courseType,
+        sus.realname studentName,
+        sus.id studentId,
+        sut.realname courseTeacherName,
+        bci.course_score courseScore,
+        sdc.depart_name departName,
+        bci.start_time startTime,
+        bci.end_time endTime,
+        bci.`status` `status`,
+        bsi.score score
+        FROM
+        sys_user sus,
+        bysj_score_info bsi,
+        bysj_course_info bci,
+        bysj_course_arrange bca,
+        sys_user sut,
+        sys_depart sdc,
+        sys_depart sda
+        WHERE
+        bsi.course_id = bci.id
+        AND bsi.student_id = sus.id
+        AND bci.course_teacherId = sut.id
+        AND bca.course_id = bci.id
+        AND sdc.id = bci.depart_id
+        AND sda.id = bca.class_id
+        <if test="bysjScoreInfoVO.studentId != null and bysjScoreInfoVO.studentId != ''">
+            AND bsi.student_id = #{bysjScoreInfoVO.studentId,jdbcType=VARCHAR}
+        </if>
+        <if test="bysjScoreInfoVO.courseId != null and bysjScoreInfoVO.courseId != ''">
+            AND bsi.course_id = #{bysjScoreInfoVO.courseId,jdbcType=VARCHAR}
+        </if>
+        <if test="bysjScoreInfoVO.courseTeacherid != null and bysjScoreInfoVO.courseTeacherid != ''">
+            AND bci.course_teacherId = #{bysjScoreInfoVO.courseTeacherId,jdbcType=VARCHAR}
+        </if>
+        AND bca.class_id IN
+        <foreach collection="classIds" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <select id="markPage" resultType="org.jeecg.modules.bysj.entity.BysjScoreInfoVO">
+        SELECT
+            bsi.id id,
+            bci.course_name courseName,
+            bci.course_type courseType,
+            sus.realname studentName,
+            sus.id studentId,
+            sut.realname courseTeacherName,
+            bci.course_score courseScore,
+            sd.depart_name departName,
+            bci.start_time startTime,
+            bci.end_time endTime,
+            bci.`status` `status`,
+            bsi.score score
+        FROM
+            sys_user sus,
+            bysj_score_info bsi,
+            bysj_course_info bci,
+            sys_user sut,
+            sys_depart sd
+        WHERE
+            bsi.course_id = bci.id
+        AND
+            bsi.student_id = sus.id
+        AND
+            bci.course_teacherId = sut.id
+        AND
+            sd.id = bci.depart_id
+        <if test="bysjScoreInfoVO.studentId != null and bysjScoreInfoVO.studentId != ''">
+            AND bsi.student_id = #{bysjScoreInfoVO.studentId,jdbcType=VARCHAR}
+        </if>
+        <if test="bysjScoreInfoVO.courseId != null and bysjScoreInfoVO.courseId != ''">
+            AND bsi.course_id = #{bysjScoreInfoVO.courseId,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <update id="emptyScoreById">
+        UPDATE bysj_score_info bsi
+        SET bsi.score = NULL
+        WHERE
+            bsi.id = #{id,jdbcType=VARCHAR};
+    </update>
+</mapper>

@@ -1,6 +1,5 @@
 <template>
   <a-date-picker
-    dropdownClassName="j-date-picker"
     :disabled="disabled || readOnly"
     :placeholder="placeholder"
     @change="handleDateChange"
@@ -8,6 +7,7 @@
     :showTime="showTime"
     :format="dateFormat"
     :getCalendarContainer="getCalendarContainer"
+    :disabledDate="disabledDate"
   />
 </template>
 <script>
@@ -52,7 +52,11 @@
       },
       getCalendarContainer: {
         type: Function,
-        default: (node) => node.parentNode
+        default: () => document.body
+      },
+      disabledDate: {
+        type: Function,
+        default: (current) => false
       }
     },
     data () {

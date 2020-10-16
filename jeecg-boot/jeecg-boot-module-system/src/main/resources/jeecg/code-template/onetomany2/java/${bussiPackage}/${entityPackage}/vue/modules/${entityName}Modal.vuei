@@ -1,10 +1,9 @@
 <template>
-  <j-modal
+  <a-modal
     :title="title"
     :width="1000"
     :visible="visible"
     :confirmLoading="confirmLoading"
-    switchFullscreen
     @ok="handleOk"
     @cancel="handleCancel">
     <a-spin :spinning="confirmLoading">
@@ -30,7 +29,7 @@
         </#list>
       </a-form>
     </a-spin>
-  </j-modal>
+  </a-modal>
 </template>
 
 <script>

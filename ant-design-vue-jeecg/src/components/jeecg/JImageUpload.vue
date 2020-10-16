@@ -44,6 +44,7 @@
     data(){
       return {
         uploadAction:window._CONFIG['domianURL']+"/sys/common/upload",
+        urlView:window._CONFIG['staticDomainURL'],
         uploadLoading:false,
         picUrl:false,
         headers:{},
@@ -86,9 +87,6 @@
         } else {
           this.initFileList(val)
         }
-        if(!val || val.length==0){
-          this.picUrl = false;
-        }
       }
     },
     created(){
@@ -105,7 +103,7 @@
         let fileList = [];
         let arr = paths.split(",")
         for(var a=0;a<arr.length;a++){
-          let url = getFileAccessHttpUrl(arr[a]);
+          let url = getFileAccessHttpUrl(arr[a],this.urlView,"http");
           fileList.push({
             uid: uidGenerator(),
             name: getFileName(arr[a]),
@@ -158,7 +156,7 @@
       getAvatarView(){
         if(this.fileList.length>0){
           let url = this.fileList[0].url
-          return getFileAccessHttpUrl(url)
+          return getFileAccessHttpUrl(url,this.urlView,"http")
         }
       },
       handlePathChange(){
@@ -171,14 +169,8 @@
         if(!this.isMultiple){
           arr.push(uploadFiles[uploadFiles.length-1].response.message)
         }else{
-          for(let a=0;a<uploadFiles.length;a++){
-            // update-begin-author:taoyan date:20200819 for:【开源问题z】上传图片组件 LOWCOD-783
-            if(uploadFiles[a].status === 'done' ) {
-              arr.push(uploadFiles[a].response.message)
-            }else{
-              return;
-            }
-            // update-end-author:taoyan date:20200819 for:【开源问题z】上传图片组件 LOWCOD-783
+          for(var a=0;a<uploadFiles.length;a++){
+            arr.push(uploadFiles[a].response.message)
           }
         }
         if(arr.length>0){

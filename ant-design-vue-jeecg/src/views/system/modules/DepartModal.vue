@@ -15,39 +15,42 @@
         <a-form-item
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
-          label="机构名称"
+          :label="addName"
           :hidden="false"
           hasFeedback >
-          <a-input id="departName" placeholder="请输入机构/部门名称" v-decorator="['departName', validatorRules.departName ]"/>
+          <a-input id="departName" placeholder="请输入院系名称" v-decorator="['departName', validatorRules.departName ]"/>
         </a-form-item>
-        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" :hidden="seen" label="上级部门" hasFeedback>
+        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" :hidden="seen" label="院系" hasFeedback>
         <a-tree-select
           style="width:100%"
           :dropdownStyle="{maxHeight:'200px',overflow:'auto'}"
           :treeData="departTree"
           v-model="model.parentId"
-          placeholder="请选择上级部门"
+          placeholder="请选择院系"
           :disabled="condition">
         </a-tree-select>
         </a-form-item>
         <a-form-item
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
-          label="机构类型">
+          label="教学体制">
           <template v-if="seen">
-          <a-radio-group v-decorator="['orgCategory',validatorRules.orgCategory]" placeholder="请选择机构类型">
+          <a-radio-group v-decorator="['orgCategory',validatorRules.orgCategory]" placeholder="请选择教学体制">
             <a-radio value="1">
-              公司
+              全日制
+            </a-radio>
+            <a-radio value="2">
+              非全日制
             </a-radio>
           </a-radio-group>
           </template>
           <template v-else>
-            <a-radio-group v-decorator="['orgCategory',validatorRules.orgCategory]" placeholder="请选择机构类型">
+            <a-radio-group v-decorator="['orgCategory',validatorRules.orgCategory]" placeholder="请选择院系类型">
               <a-radio value="2">
-                部门
+                学校直属
               </a-radio>
               <a-radio value="3">
-                岗位
+                附属学院
               </a-radio>
             </a-radio-group>
           </template>
@@ -55,21 +58,27 @@
         <a-form-item
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
-          label="电话">
-          <a-input placeholder="请输入电话" v-decorator="['mobile',validatorRules.mobile]" />
+          label="负责人联系方式">
+          <a-input placeholder="请输入手机号" v-decorator="['mobile',validatorRules.mobile]" />
         </a-form-item>
         <a-form-item
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+          label="负责人姓名">
+          <a-input placeholder="请输入负责人姓名" v-decorator="['address', {}]"  />
+        </a-form-item>
+        <!-- <a-form-item
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
           label="传真">
           <a-input placeholder="请输入传真" v-decorator="['fax', {}]"  />
-        </a-form-item>
-        <a-form-item
+        </a-form-item> -->
+        <!-- <a-form-item
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
           label="地址">
           <a-input placeholder="请输入地址" v-decorator="['address', {}]"  />
-        </a-form-item>
+        </a-form-item> -->
         <a-form-item
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
@@ -98,6 +107,8 @@
     components: { ATextarea },
     data () {
       return {
+        addName:"班级名称",
+        parentNodeId:'',
         departTree:[],
         orgTypeData:[],
         phoneWarning:'',
@@ -122,8 +133,8 @@
         confirmLoading: false,
         form: this.$form.createForm(this),
         validatorRules:{
-        departName:{rules: [{ required: true, message: '请输入机构/部门名称!' }]},
-        orgCode:{rules: [{ required: true, message: '请输入机构编码!' }]},
+        departName:{rules: [{ required: true, message: '请输入院系/班级名称!' }]},
+        orgCode:{rules: [{ required: true, message: '请输入院系/班级编码!' }]},
          mobile:{rules: [{validator:this.validateMobile}]}
         },
         url: {
@@ -186,7 +197,7 @@
             that.confirmLoading = true;
             let formData = Object.assign(this.model, values);
             //时间格式化
-            console.log(formData)
+            formData.parentId = that.parentNodeId;
             httpAction(this.url.add,formData,"post").then((res)=>{
               if(res.success){
                 that.$message.success(res.message);
@@ -196,6 +207,7 @@
                 that.$message.warning(res.message);
               }
             }).finally(() => {
+              that.parentNodeId = '';
               that.confirmLoading = false;
               that.close();
             })
@@ -207,7 +219,7 @@
         this.close()
       },
       validateMobile(rule,value,callback){
-        if (!value || new RegExp(/^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\d{8}$/).test(value)){
+        if (!value || new RegExp(/^1([3-8][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\d{8}$/).test(value)){
           callback();
         }else{
           callback("您的手机号码格式不正确!");

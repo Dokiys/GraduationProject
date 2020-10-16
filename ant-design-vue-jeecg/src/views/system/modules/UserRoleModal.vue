@@ -7,7 +7,7 @@
     :closable="true"
     @close="close"
     :visible="visible"
-    style="overflow: auto;padding-bottom: 53px;">
+    style="height: calc(100% - 55px);overflow: auto;padding-bottom: 53px;">
 
     <a-form>
       <a-form-item label='所拥有的权限'>
@@ -169,7 +169,7 @@
               this.checkedKeys = [...res.result];
               this.defaultCheckedKeys = [...res.result];
               this.expandedKeysss = this.allTreeKeys;
-              console.log(this.defaultCheckedKeys)
+              //console.log(this.defaultCheckedKeys)
           })
         })
       }

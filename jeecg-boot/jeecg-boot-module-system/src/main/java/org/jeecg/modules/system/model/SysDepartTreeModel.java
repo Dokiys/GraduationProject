@@ -45,7 +45,7 @@ public class SysDepartTreeModel implements Serializable{
 
     private Integer departOrder;
 
-    private String description;
+    private Object description;
     
     private String orgCategory;
 
@@ -263,11 +263,11 @@ public class SysDepartTreeModel implements Serializable{
         this.departOrder = departOrder;
     }
 
-    public String getDescription() {
+    public Object getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(Object description) {
         this.description = description;
     }
 

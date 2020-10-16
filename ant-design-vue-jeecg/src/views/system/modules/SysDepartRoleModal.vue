@@ -14,14 +14,14 @@
         <a-form-item
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
-          label="部门角色名称">
-          <a-input placeholder="请输入部门角色名称" v-decorator="['roleName', validatorRules.roleName]" />
+          label="角色名称">
+          <a-input placeholder="请输入角色名称" v-decorator="['roleName', validatorRules.roleName]" />
         </a-form-item>
         <a-form-item
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
-          label="部门角色编码">
-          <a-input placeholder="请输入部门角色编码" v-decorator="['roleCode', validatorRules.roleCode]" />
+          label="角色编码">
+          <a-input placeholder="请输入角色编码" v-decorator="['roleCode', validatorRules.roleCode]" />
         </a-form-item>
         <a-form-item
           :labelCol="labelCol"

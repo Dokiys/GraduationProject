@@ -2,16 +2,16 @@ import { USER_AUTH,SYS_BUTTON_AUTH } from "@/store/mutation-types"
 
 const hasPermission = {
     install (Vue, options) {
-          //console.log(options);
+        //console.log(options);
           Vue.directive('has', {
             inserted: (el, binding, vnode)=>{
-                console.log("页面权限控制----");
-                //console.time()
+                //console.log("页面权限控制----");
+                console.time()
                 //节点权限处理，如果命中则不进行全局权限处理
                 if(!filterNodePermission(el, binding, vnode)){
                   filterGlobalPermission(el, binding, vnode);
                 }
-                //console.timeEnd() //计时结束并输出时长
+                console.timeEnd() //计时结束并输出时长
             }
           });
     }
@@ -109,21 +109,7 @@ export function filterGlobalPermission(el, binding, vnode) {
   let permissions = [];
   for (let item of permissionList) {
     if(item.type != '2'){
-      //update--begin--autor:wangshuai-----date:20200729------for：按钮权限，授权标识的提示信息是多个用逗号分隔逻辑处理 gitee#I1OUGU-------
-      if(item.action){
-        if(item.action.includes(",")){
-          let split = item.action.split(",")
-            for (let i = 0; i <split.length ; i++) {
-              if(!split[i] ||split[i].length==0){
-                continue;
-              }
-              permissions.push(split[i]);
-          }
-        }else{
-          permissions.push(item.action);
-        }
-      }
-      //update--end--autor:wangshuai-----date:20200729------for：按钮权限，授权标识的提示信息是多个用逗号分隔逻辑处理 gitee#I1OUGU------
+      permissions.push(item.action);
     }
   }
   if (!permissions.includes(binding.value)) {

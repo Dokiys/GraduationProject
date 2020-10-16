@@ -57,7 +57,6 @@
     data() {
       return {
         scale: [{
-          type: 'cat',
           dataKey: 'x',
           min: 0,
           max: 1

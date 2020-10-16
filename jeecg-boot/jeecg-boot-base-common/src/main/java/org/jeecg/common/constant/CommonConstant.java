@@ -72,7 +72,7 @@ public interface CommonConstant {
     public static final Integer SC_JEECG_NO_AUTHZ=510;
 
     /** 登录用户Shiro权限缓存KEY前缀 */
-    public static String PREFIX_USER_SHIRO_CACHE  = "shiro:cache:org.jeecg.config.shiro.ShiroRealm.authorizationCache:";
+    public static String PREFIX_USER_SHIRO_CACHE  = "shiro:cache:org.jeecg.modules.shiro.authc.ShiroRealm.authorizationCache:";
     /** 登录用户Token令牌缓存KEY前缀 */
     public static final String PREFIX_USER_TOKEN  = "prefix_user_token_";
     /** Token缓存时间：3600秒即一小时 */
@@ -126,9 +126,9 @@ public interface CommonConstant {
     /**
      * 同步工作流引擎1同步0不同步
      */
-    public static final Integer ACT_SYNC_1 = 1;
-    public static final Integer ACT_SYNC_0 = 0;
-
+    public static final String ACT_SYNC_0 = "0";
+    public static final String ACT_SYNC_1 = "1";
+    
     /**
      * 消息类型1:通知公告2:系统消息
      */
@@ -142,7 +142,7 @@ public interface CommonConstant {
     public static final Integer RULE_FLAG_1 = 1;
 
     /**
-     * 是否用户已被冻结 1正常(解冻) 2冻结
+     * 是否用户已被冻结 1(解冻)正常 2冻结
      */
     public static final Integer USER_UNFREEZE = 1;
     public static final Integer USER_FREEZE = 2;
@@ -205,104 +205,8 @@ public interface CommonConstant {
     public static final String UPLOAD_TYPE_OSS = "alioss";
 
     /**
-     * 文档上传自定义桶名称
-     */
-    public static final String UPLOAD_CUSTOM_BUCKET = "eoafile";
-    /**
-     * 文档上传自定义路径
-     */
-    public static final String UPLOAD_CUSTOM_PATH = "eoafile";
-    /**
-     * 文件外链接有效天数
-     */
-    public static final Integer UPLOAD_EFFECTIVE_DAYS = 1;
-
-    /**
      * 员工身份 （1:普通员工  2:上级）
      */
     public static final Integer USER_IDENTITY_1 = 1;
     public static final Integer USER_IDENTITY_2 = 2;
-
-    /** sys_user 表 username 唯一键索引 */
-    public static final String SQL_INDEX_UNIQ_SYS_USER_USERNAME = "uniq_sys_user_username";
-    /** sys_user 表 work_no 唯一键索引 */
-    public static final String SQL_INDEX_UNIQ_SYS_USER_WORK_NO = "uniq_sys_user_work_no";
-    /** sys_user 表 phone 唯一键索引 */
-    public static final String SQL_INDEX_UNIQ_SYS_USER_PHONE = "uniq_sys_user_phone";
-    /** sys_user 表 email 唯一键索引 */
-    public static final String SQL_INDEX_UNIQ_SYS_USER_EMAIL = "uniq_sys_user_email";
-    /** sys_quartz_job 表 job_class_name 唯一键索引 */
-    public static final String SQL_INDEX_UNIQ_JOB_CLASS_NAME = "uniq_job_class_name";
-    /** sys_position 表 code 唯一键索引 */
-    public static final String SQL_INDEX_UNIQ_CODE = "uniq_code";
-    /** sys_role 表 code 唯一键索引 */
-    public static final String SQL_INDEX_UNIQ_SYS_ROLE_CODE = "uniq_sys_role_role_code";
-    /** sys_depart 表 code 唯一键索引 */
-    public static final String SQL_INDEX_UNIQ_DEPART_ORG_CODE = "uniq_depart_org_code";
-    /**
-     * 在线聊天 是否为默认分组
-     */
-    public static final String IM_DEFAULT_GROUP = "1";
-    /**
-     * 在线聊天 图片文件保存路径
-     */
-    public static final String IM_UPLOAD_CUSTOM_PATH = "imfile";
-    /**
-     * 在线聊天 用户状态
-     */
-    public static final String IM_STATUS_ONLINE = "online";
-
-    /**
-     * 在线聊天 SOCKET消息类型
-     */
-    public static final String IM_SOCKET_TYPE = "chatMessage";
-
-    /**
-     * 在线聊天 是否开启默认添加好友 1是 0否
-     */
-    public static final String IM_DEFAULT_ADD_FRIEND = "1";
-
-    /**
-     * 在线聊天 用户好友缓存前缀
-     */
-    public static final String IM_PREFIX_USER_FRIEND_CACHE = "im_prefix_user_friend_";
-
-    /**
-     * 考勤补卡业务状态 （1：同意  2：不同意）
-     */
-    public static final String SIGN_PATCH_BIZ_STATUS_1 = "1";
-    public static final String SIGN_PATCH_BIZ_STATUS_2 = "2";
-
-    /**
-     * 公文文档上传自定义路径
-     */
-    public static final String UPLOAD_CUSTOM_PATH_OFFICIAL = "officialdoc";
-     /**
-     * 公文文档下载自定义路径
-     */
-    public static final String DOWNLOAD_CUSTOM_PATH_OFFICIAL = "officaldown";
-
-    /**
-     * WPS存储值类别(1 code文号 2 text（WPS模板还是公文发文模板）)
-     */
-    public static final String WPS_TYPE_1="1";
-    public static final String WPS_TYPE_2="2";
-
-
-    public final static String X_ACCESS_TOKEN = "X-Access-Token";
-
-    /**
-     * 多租户 请求头
-     */
-    public final static String TENANT_ID = "tenant_id";
-
-    /**
-     * 微服务读取配置文件属性 服务地址
-     */
-    public final static String CLOUD_SERVER_KEY = "spring.cloud.nacos.discovery.server-addr";
-
-    /**
-     * 第三方登录 验证密码/创建用户 都需要设置一个操作码 防止被恶意调用
-     */
-    public final static String THIRD_LOGIN_CODE = "third_login_code";
 }

@@ -26,9 +26,9 @@
     </div>
     <!-- 操作按钮区域 -->
     <div class="table-operator" :md="24" :sm="24" style="margin-top: -15px">
+      <!-- <a-button @click="handleAdd" type="primary" icon="plus" style="margin-top: 16px">用户录入</a-button> -->
       <!--<a-button @click="handleEdit" type="primary" icon="edit" style="margin-top: 16px">用户编辑</a-button>-->
-      <a-button @click="handleAddUserDepart" type="primary" icon="plus">添加已有用户</a-button>
-      <a-button @click="handleAdd" type="primary" icon="plus" style="margin-top: 16px">新建用户</a-button>
+      <a-button @click="handleAddUserDepart" type="primary" icon="plus" v-if="isAddUserVisible">添加用户</a-button>
 
       <a-dropdown v-if="selectedRowKeys.length > 0">
         <a-menu slot="overlay">
@@ -65,8 +65,8 @@
 
 
 
-        <span slot="action" slot-scope="text, record">
-          <a @click="handleEdit(record)">编辑</a>
+        <span slot="action" slot-scope="text, record" v-if="isManagementVisible">
+          <a href="javascript:;" @click="handleDetail(record)">详情</a>
 
           <a-divider type="vertical"/>
 
@@ -75,21 +75,23 @@
               更多 <a-icon type="down"/>
             </a>
             <a-menu slot="overlay">
-                <a-menu-item>
-                <a href="javascript:;" @click="handleDeptRole(record)">分配部门角色</a>
+              <a-menu-item>
+                <a @click="handleEdit(record)">编辑</a>
               </a-menu-item>
 
-              <a-menu-item>
-                <a href="javascript:;" @click="handleDetail(record)">用户详情</a>
-              </a-menu-item>
-
-              <a-menu-item>
-                <a-popconfirm title="确定取消与选中部门关联吗?" @confirm="() => handleDelete(record.id)">
+              <a-menu-item v-if="isAddUserVisible">
+                <a-popconfirm title="确定取消与选中院系/班级关联吗?" @confirm="() => handleDelete(record.id)">
                   <a>取消关联</a>
                 </a-popconfirm>
               </a-menu-item>
+              <a-menu-item>
+                <a href="javascript:;" @click="handleDeptRole(record)">分配角色</a>
+              </a-menu-item>
             </a-menu>
           </a-dropdown>
+        </span>
+        <span v-else>
+          当前角色无法操作
         </span>
 
 
@@ -99,7 +101,7 @@
 
     <!-- 表单区域 -->
     <user-modal ref="modalForm" @ok="modalFormOk"></user-modal>
-    <Select-User-Modal ref="selectUserModal" @selectFinished="selectOK"></Select-User-Modal>
+    <Select-User-Modal ref="selectUserModal" urlList="/sys/user/listWithoutDepart" @selectFinished="selectOK"></Select-User-Modal>
     <dept-role-user-modal ref="deptRoleUser"></dept-role-user-modal>
   </a-card>
 </template>
@@ -123,21 +125,18 @@
       return {
         description: '用户信息',
         currentDeptId: '',
+        isAddUserVisible: true,
+        isManagementVisible: true,
         // 表头
         columns: [{
-            title: '用户账号',
-            align: "center",
-            dataIndex: 'username'
-          },
+          title: '用户账号',
+          align: "center",
+          dataIndex: 'username'
+        },
           {
             title: '用户名称',
             align: "center",
             dataIndex: 'realname'
-          },
-          {
-            title: '部门',
-            align: "center",
-            dataIndex: 'orgCode'
           },
           {
             title: '性别',
@@ -150,11 +149,21 @@
             dataIndex: 'phone'
           },
           {
+            title: '院系',
+            align: "center",
+            dataIndex: 'orgCode'
+          },
+          {
+            title: '角色',
+            align: "center",
+            dataIndex: 'departRoleNames'
+          },
+          {
             title: '操作',
             dataIndex: 'action',
             scopedSlots: {customRender: 'action'},
             align: "center",
-            width: 150
+            width: 170
           }],
         url: {
           list: "/sys/user/departUserList",
@@ -170,7 +179,9 @@
     methods: {
       searchReset() {
         this.queryParam = {}
+        this.currentDeptId = '';
         this.loadData(1);
+        this.$emit('clearSelectedDepartKeys')
       },
       loadData(arg) {
         if (!this.url.list) {
@@ -198,7 +209,7 @@
           return
         }
         if (!this.currentDeptId) {
-          this.$message.error("未选中任何部门，无法取消部门与用户的关联!")
+          this.$message.error("未选中任何院系/班级，无法取消院系/班级与用户的关联!")
           return
         }
 
@@ -214,11 +225,11 @@
           console.log(this.currentDeptId);
           this.$confirm({
             title: "确认取消",
-            content: "是否取消用户与选中部门的关联?",
+            content: "是否取消用户与选中院系/班级的关联?",
             onOk: function () {
               deleteAction(that.url.deleteBatch, {depId: that.currentDeptId, userIds: ids}).then((res) => {
                 if (res.success) {
-                  that.$message.success("删除用户与选中部门关系成功！");
+                  that.$message.success("删除用户与选中院系/班级关系成功！");
                   that.loadData();
                   that.onClearSelected();
                 } else {
@@ -235,14 +246,14 @@
           return
         }
         if (!this.currentDeptId) {
-          this.$message.error("未选中任何部门，无法取消部门与用户的关联!")
+          this.$message.error("未选中任何院系/班级，无法取消院系/班级与用户的关联!")
           return
         }
 
         var that = this;
         deleteAction(that.url.delete, {depId: this.currentDeptId, userId: id}).then((res) => {
           if (res.success) {
-            that.$message.success("删除用户与选中部门关系成功！");
+            that.$message.success("删除用户与选中院系/班级关系成功！");
             if (this.selectedRowKeys.length>0){
                for(let i =0; i<this.selectedRowKeys.length;i++){
                    if (this.selectedRowKeys[i] == id){
@@ -258,7 +269,6 @@
         });
       },
       open(record) {
-        //console.log(record);
         this.currentDeptId = record.id;
         this.loadData(1);
       },
@@ -268,14 +278,14 @@
       },
       hasSelectDept() {
         if (this.currentDeptId == '') {
-          this.$message.error("请选择一个部门!")
+          this.$message.error("请选择一个院系/班级!")
           return false;
         }
         return true;
       },
       handleAddUserDepart() {
         if (this.currentDeptId == '' ) {
-          this.$message.error("请选择一个部门!")
+          this.$message.error("请选择一个院系/班级!")
         } else {
           this.$refs.selectUserModal.visible = true;
         }
@@ -288,7 +298,7 @@
       },
       handleAdd: function () {
         if (this.currentDeptId == '') {
-          this.$message.error("请选择一个部门!")
+          this.$message.error("请选择一个院系/班级!")
         } else {
           this.$refs.modalForm.departDisabled = true;
           this.$refs.modalForm.userDepartModel.departIdList = [this.currentDeptId];  //传入一个部门id
@@ -314,12 +324,8 @@
         })
       },
       handleDeptRole(record){
-        if(this.currentDeptId != ''){
-          this.$refs.deptRoleUser.add(record,this.currentDeptId);
-          this.$refs.deptRoleUser.title = "部门角色分配";
-        }else{
-          this.$message.warning("请先选择一个部门!");
-        }
+        this.$refs.deptRoleUser.add(record,this.currentDeptId);
+        this.$refs.deptRoleUser.title = "角色分配";
       }
     }
   }

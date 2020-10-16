@@ -15,7 +15,6 @@ public interface CacheConstant {
 	 * 表字典信息缓存
 	 */
     public static final String SYS_DICT_TABLE_CACHE = "sys:cache:dictTable";
-	public static final String SYS_DICT_TABLE_BY_KEYS_CACHE = SYS_DICT_TABLE_CACHE + "ByKeys";
 
 	/**
 	 * 数据权限配置缓存
@@ -44,19 +43,4 @@ public interface CacheConstant {
 	 */
 	public static final String TEST_DEMO_CACHE = "test:demo";
 
-	/**
-	 * 字典信息缓存
-	 */
-	public static final String SYS_DYNAMICDB_CACHE = "sys:cache:dbconnect:dynamic:";
-
-	/**
-	 * gateway路由缓存
-	 */
-	public static final String GATEWAY_ROUTES = "geteway_routes";
-
-
-	/**
-	 * gateway路由 reload key
-	 */
-	public static final String ROUTE_JVM_RELOAD_TOPIC = "gateway_jvm_route_reload_topic";
 }

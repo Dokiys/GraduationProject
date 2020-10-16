@@ -1,6 +1,5 @@
 import * as api from '@/api/api'
 import { isURL } from '@/utils/validate'
-import onlineCommons from '@jeecg/antd-online-mini'
 
 export function timeFix() {
   const time = new Date()
@@ -34,7 +33,7 @@ export function filterObj(obj) {
     return;
   }
 
-  for ( let key in obj) {
+  for ( var key in obj) {
     if (obj.hasOwnProperty(key)
       && (obj[key] == null || obj[key] == undefined || obj[key] === '')) {
       delete obj[key];
@@ -50,7 +49,7 @@ export function filterObj(obj) {
  * @returns {*}
  */
 export function formatDate(value, fmt) {
-  let regPos = /^\d+(\.\d+)?$/;
+  var regPos = /^\d+(\.\d+)?$/;
   if(regPos.test(value)){
     //如果是数字
     let getDate = new Date(value);
@@ -101,7 +100,7 @@ let indexRouter = [{
 
 function  generateChildRouters (data) {
   const routers = [];
-  for (let item of data) {
+  for (var item of data) {
     let component = "";
     if(item.component.indexOf("layouts")>=0){
        component = "components/"+item.component;
@@ -115,33 +114,11 @@ function  generateChildRouters (data) {
       item.meta.url = URL;
     }
 
-    let componentPath
-    if(item.component=="modules/online/cgform/OnlCgformHeadList"){
-      componentPath = onlineCommons.OnlCgformHeadList
-    }else if(item.component=="modules/online/cgform/OnlCgformCopyList"){
-      componentPath = onlineCommons.OnlCgformCopyList
-    }else if(item.component=="modules/online/cgform/auto/OnlCgformAutoList"){
-      componentPath = onlineCommons.OnlCgformAutoList
-    }else if(item.component=="modules/online/cgform/auto/OnlCgformTreeList"){
-      componentPath = onlineCommons.OnlCgformTreeList
-    }else if(item.component=="modules/online/cgform/auto/erp/OnlCgformErpList"){
-      componentPath = onlineCommons.OnlCgformErpList
-    }else if(item.component=="modules/online/cgform/auto/innerTable/OnlCgformInnerTableList"){
-      componentPath = onlineCommons.OnlCgformInnerTableList
-    }else if(item.component=="modules/online/cgreport/OnlCgreportHeadList"){
-      componentPath = onlineCommons.OnlCgreportHeadList
-    }else if(item.component=="modules/online/cgreport/auto/OnlCgreportAutoList"){
-      componentPath = onlineCommons.OnlCgreportAutoList
-    }else{
-      componentPath = resolve => require(['@/' + component+'.vue'], resolve)
-    }
-
-
     let menu =  {
       path: item.path,
       name: item.name,
       redirect:item.redirect,
-      component: componentPath,
+      component: resolve => require(['@/' + component+'.vue'], resolve),
       hidden:item.hidden,
       //component:()=> import(`@/views/${item.component}.vue`),
       meta: {
@@ -437,104 +414,4 @@ export function alwaysResolve(promise) {
       reject('alwaysResolve: 传入的参数不是一个Promise对象或返回Promise对象的方法')
     }
   })
-}
-
-/**
- * 简单实现防抖方法
- *
- * 防抖(debounce)函数在第一次触发给定的函数时，不立即执行函数，而是给出一个期限值(delay)，比如100ms。
- * 如果100ms内再次执行函数，就重新开始计时，直到计时结束后再真正执行函数。
- * 这样做的好处是如果短时间内大量触发同一事件，只会执行一次函数。
- *
- * @param fn 要防抖的函数
- * @param delay 防抖的毫秒数
- * @returns {Function}
- */
-export function simpleDebounce(fn, delay = 100) {
-  let timer = null
-  return function () {
-    let args = arguments
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(() => {
-      fn.apply(this, args)
-    }, delay)
-  }
-}
-
-/**
- * 不用正则的方式替换所有值
- * @param text 被替换的字符串
- * @param checker  替换前的内容
- * @param replacer 替换后的内容
- * @returns {String} 替换后的字符串
- */
-export function replaceAll(text, checker, replacer) {
-  let lastText = text
-  text = text.replace(checker, replacer)
-  if (lastText !== text) {
-    return replaceAll(text, checker, replacer)
-  }
-  return text
-}
-
-/**
- * 获取事件冒泡路径，兼容 IE11，Edge，Chrome，Firefox，Safari
- * 目前使用的地方：JEditableTable Span模式
- */
-export function getEventPath(event) {
-  let target = event.target
-  let path = (event.composedPath && event.composedPath()) || event.path
-
-  if (path != null) {
-    return (path.indexOf(window) < 0) ? path.concat(window) : path
-  }
-
-  if (target === window) {
-    return [window]
-  }
-
-  let getParents = (node, memo) => {
-    memo = memo || []
-    const parentNode = node.parentNode
-
-    if (!parentNode) {
-      return memo
-    } else {
-      return getParents(parentNode, memo.concat(parentNode))
-    }
-  }
-  return [target].concat(getParents(target), window)
-}
-
-/**
- * 根据组件名获取父级
- * @param vm
- * @param name
- * @returns {Vue | null|null|Vue}
- */
-export function getVmParentByName(vm, name) {
-  let parent = vm.$parent
-  if (parent && parent.$options) {
-    if (parent.$options.name === name) {
-      return parent
-    } else {
-      let res = getVmParentByName(parent, name)
-      if (res) {
-        return res
-      }
-    }
-  }
-  return null
-}
-
-/**
- * 使一个值永远不会为（null | undefined）
- *
- * @param value 要处理的值
- * @param def 默认值，如果value为（null | undefined）则返回的默认值，可不传，默认为''
- */
-export function neverNull(value, def) {
-  return value == null ? (neverNull(def, '')) : value
 }

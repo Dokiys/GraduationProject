@@ -1,11 +1,9 @@
-<#include "/common/utils.ftl">
 <template>
-  <j-modal
+  <a-modal
     :title="title"
     :width="width"
     :visible="visible"
     :confirmLoading="confirmLoading"
-    switchFullscreen
     @ok="handleOk"
     @cancel="handleCancel"
     :destroyOnClose="true"
@@ -19,7 +17,6 @@
 <#assign form_sel_depart = false>
 <#assign form_sel_user = false>
 <#assign form_file = false>
-<#assign form_image = false>
 <#assign form_tree_select = false>
 <#assign pidFieldName = "">
 
@@ -38,7 +35,7 @@
           <j-tree-select
             ref="treeSelect"
             placeholder="请选择${po.filedComment}"
-            v-decorator="['${po.fieldName}'${autoWriteRules(po)}]"
+            v-decorator="['${po.fieldName}', validatorRules.${po.fieldName}]"
             dict="${tableVo.tableName},${tableVo.extendParams.textField},id"
             pidField="${tableVo.extendParams.pidField}"
             pidValue="0"
@@ -46,43 +43,40 @@
           </j-tree-select>
 	<#elseif po.classType =='date'>
 		<#assign form_date=true>
-          <j-date placeholder="请选择${po.filedComment}" v-decorator="['${po.fieldName}'${autoWriteRules(po)}]" :trigger-change="true" style="width: 100%"/>
+          <j-date placeholder="请选择${po.filedComment}" v-decorator="[ '${po.fieldName}', validatorRules.${po.fieldName}]" :trigger-change="true" style="width: 100%"/>
 	<#elseif po.classType =='datetime'>
 		<#assign form_date=true>
-          <j-date placeholder="请选择${po.filedComment}" v-decorator="['${po.fieldName}'${autoWriteRules(po)}]" :trigger-change="true" :show-time="true" date-format="YYYY-MM-DD HH:mm:ss" style="width: 100%"/>
+          <j-date placeholder="请选择${po.filedComment}" v-decorator="[ '${po.fieldName}', validatorRules.${po.fieldName}]" :trigger-change="true" :show-time="true" date-format="YYYY-MM-DD HH:mm:ss" style="width: 100%"/>
 	<#elseif po.classType =='popup'>
 		<#assign form_popup=true>
           <j-popup
-            v-decorator="['${po.fieldName}'${autoWriteRules(po)}]"
+            v-decorator="['${po.fieldName}', validatorRules.${po.fieldName}]"
             :trigger-change="true"
             org-fields="${po.dictField}"
-            dest-fields="${Format.underlineToHump(po.dictText)}"
+            dest-fields="${po.dictText}"
             code="${po.dictTable}"
             @callback="popupCallback"/>
 	<#elseif po.classType =='sel_depart'>
 		<#assign form_sel_depart=true>
-          <j-select-depart v-decorator="['${po.fieldName}'${autoWriteRules(po)}]" :trigger-change="true"/>
+          <j-select-depart v-decorator="['${po.fieldName}', validatorRules.${po.fieldName}]" :trigger-change="true"/>
 	<#elseif po.classType =='sel_user'>
 		<#assign form_sel_user = true>
-          <j-select-user-by-dep v-decorator="['${po.fieldName}'${autoWriteRules(po)}]" :trigger-change="true"/>
+          <j-select-user-by-dep v-decorator="['${po.fieldName}', validatorRules.${po.fieldName}]" :trigger-change="true"/>
 	<#elseif po.classType =='textarea'>
-          <a-textarea v-decorator="['${po.fieldName}'${autoWriteRules(po)}]" rows="4" placeholder="请输入${po.filedComment}"/>
+          <a-textarea v-decorator="['${po.fieldName}', validatorRules.${po.fieldName}]" rows="4" placeholder="请输入${po.filedComment}"/>
 	<#elseif po.classType=='list' || po.classType=='radio'>
 		<#assign form_select = true>
-          <j-dict-select-tag type="${po.classType}" v-decorator="['${po.fieldName}'${autoWriteRules(po)}]" :trigger-change="true" dictCode="${form_field_dictCode}" placeholder="请选择${po.filedComment}"/>
+          <j-dict-select-tag type="${po.classType}" v-decorator="['${po.fieldName}', validatorRules.${po.fieldName}]" :trigger-change="true" dictCode="${form_field_dictCode}" placeholder="请选择${po.filedComment}"/>
 	<#elseif po.classType=='list_multi' || po.classType=='checkbox'>
 		<#assign form_select_multi = true>
-          <j-multi-select-tag type="${po.classType}" v-decorator="['${po.fieldName}'${autoWriteRules(po)}]" :trigger-change="true" dictCode="${form_field_dictCode}" placeholder="请选择${po.filedComment}"/>
+          <j-multi-select-tag type="${po.classType}" v-decorator="['${po.fieldName}', validatorRules.${po.fieldName}]" :trigger-change="true" dictCode="${form_field_dictCode}" placeholder="请选择${po.filedComment}"/>
 	<#elseif po.fieldDbType=='int' || po.fieldDbType=='double' || po.fieldDbType=='BigDecimal'>
-          <a-input-number v-decorator="['${po.fieldName}'${autoWriteRules(po)}]" placeholder="请输入${po.filedComment}" style="width: 100%"/>
-	<#elseif po.classType=='file'>
+          <a-input-number v-decorator="[ '${po.fieldName}', validatorRules.${po.fieldName}]" placeholder="请输入${po.filedComment}" style="width: 100%"/>
+	<#elseif po.classType=='file' || po.classType=='image'>
 		<#assign form_file = true>
-          <j-upload v-decorator="['${po.fieldName}'${autoWriteRules(po)}]" :trigger-change="true"></j-upload>
-	<#elseif po.classType=='image'>
-	    <#assign form_image = true>
-          <j-image-upload isMultiple v-decorator="['${po.fieldName}'${autoWriteRules(po)}]"></j-image-upload>
+          <j-upload v-decorator="['${po.fieldName}', validatorRules.${po.fieldName}]" :trigger-change="true"></j-upload>
 	<#else>
-          <a-input v-decorator="['${po.fieldName}'${autoWriteRules(po)}]" placeholder="请输入${po.filedComment}"></a-input>
+          <a-input v-decorator="[ '${po.fieldName}', validatorRules.${po.fieldName}]" placeholder="请输入${po.filedComment}"></a-input>
     </#if>
         </a-form-item>
 </#if>
@@ -90,7 +84,7 @@
         
       </a-form>
     </a-spin>
-  </j-modal>
+  </a-modal>
 </template>
 
 <script>
@@ -103,9 +97,6 @@
   </#if>
   <#if form_file>
   import JUpload from '@/components/jeecg/JUpload'
-  </#if>
-  <#if form_image>
-  import JImageUpload from '@/components/jeecg/JImageUpload'
   </#if>
   <#if form_sel_depart>
   import JSelectDepart from '@/components/jeecgbiz/JSelectDepart'
@@ -131,9 +122,6 @@
     </#if>
     <#if form_file>
       JUpload,
-    </#if>
-    <#if form_image>
-      JImageUpload,
     </#if>
     <#if form_sel_depart>
       JSelectDepart,
@@ -168,7 +156,7 @@
         },
 
         confirmLoading: false,
-        <#include "/common/validatorRulesTemplate/main.ftl">
+        <#include "/common/validatorRulesTemplate.ftl">
         url: {
           add: "/${entityPackage}/${entityName?uncap_first}/add",
           edit: "/${entityPackage}/${entityName?uncap_first}/edit",
@@ -181,8 +169,8 @@
     created () {
     },
     methods: {
-      add (obj) {
-        this.edit(obj);
+      add () {
+        this.edit({});
       },
       edit (record) {
         this.form.resetFields();
@@ -218,7 +206,7 @@
             httpAction(httpurl,formData,method).then((res)=>{
               if(res.success){
                 that.$message.success(res.message);
-                this.$emit('ok');
+                that.submitSuccess(formData,old_pid==new_pid)
               }else{
                 that.$message.warning(res.message);
               }

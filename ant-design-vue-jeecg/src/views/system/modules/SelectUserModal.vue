@@ -16,8 +16,8 @@
           <a-row :gutter="24">
 
             <a-col :span="10">
-              <a-form-item label="用户账号">
-                <a-input placeholder="请输入用户账号" v-model="queryParam.username"></a-input>
+              <a-form-item label="账号">
+                <j-input placeholder="请输入用户账号模糊查询" v-model="queryParam.username"></j-input>
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -57,11 +57,23 @@
   import {filterObj} from '@/utils/util'
   import {getAction} from '@/api/manage'
 
+  import JInput from '@/components/jeecg/JInput'
+
   export default {
     name: "SelectUserModal",
+    components: {
+      JInput,
+    },
+    props:{
+      urlList:{
+        required: false,
+        type: String,
+        default: ""
+      }
+    },
     data() {
       return {
-        title: "添加已有用户",
+        title: "选择用户",
         names: [],
         visible: false,
         placement: 'right',
@@ -81,13 +93,13 @@
             }
           },
           {
-            title: '用户账号',
+            title: '账号',
             align: "center",
             width: 100,
             dataIndex: 'username'
           },
           {
-            title: '用户名称',
+            title: '姓名',
             align: "center",
             width: 100,
             dataIndex: 'realname'
@@ -105,7 +117,7 @@
             dataIndex: 'phone'
           },
           {
-            title: '部门',
+            title: '院系/班级',
             align: "center",
             width: 150,
             dataIndex: 'orgCode'
@@ -113,13 +125,13 @@
         ],
         columns2: [
           {
-            title: '用户账号',
+            title: '账号',
             align: "center",
             dataIndex: 'username',
 
           },
           {
-            title: '用户名称',
+            title: '姓名',
             align: "center",
             dataIndex: 'realname',
           },
@@ -170,12 +182,13 @@
         this.loadData(1);
       },
       handleCancel() {
+        this.$emit("selectCancel", this.selectionRows);
+        this.queryParam = {};
         this.visible = false;
       },
       handleOk() {
         this.dataSource2 = this.selectedRowKeys;
-        console.log("data:" + this.dataSource2);
-        this.$emit("selectFinished", this.dataSource2);
+        this.$emit("selectOK", this.selectionRows);
         this.visible = false;
       },
       add() {
@@ -187,12 +200,22 @@
           this.ipagination.current = 1;
         }
         var params = this.getQueryParams();//查询条件
-        getAction(this.url.list, params).then((res) => {
-          if (res.success) {
-            this.dataSource1 = res.result.records;
-            this.ipagination.total = res.result.total;
-          }
-        })
+        //如果传入了指定的请求路径则查询指定的请求路径否则默认查询
+        if(!!this.urlList){
+          getAction(this.urlList, params).then((res) => {
+            if (res.success) {
+              this.dataSource1 = res.result.records;
+              this.ipagination.total = res.result.total;
+            }
+          })
+        }else{
+          getAction(this.url.list, params).then((res) => {
+            if (res.success) {
+              this.dataSource1 = res.result.records;
+              this.ipagination.total = res.result.total;
+            }
+          })
+        }
       },
       getQueryParams() {
         var param = Object.assign({}, this.queryParam, this.isorter);
@@ -214,19 +237,18 @@
             this.dataSource2.splice(this.dataSource2.indexOf(changeRows[b]), 1);
           }
         }
-        // console.log(selected, selectedRows, changeRows);
+        this.$emit("onSelectAll");
       },
       onSelect(record, selected) {
         if (selected === true) {
           this.dataSource2.push(record);
         } else {
           var index = this.dataSource2.indexOf(record);
-          //console.log();
           if (index >= 0) {
             this.dataSource2.splice(this.dataSource2.indexOf(record), 1);
           }
-
         }
+        this.$emit("selected",record)
       },
       onSelectChange(selectedRowKeys, selectedRows) {
         this.selectedRowKeys = selectedRowKeys;
@@ -249,7 +271,7 @@
         }
         this.ipagination = pagination;
         this.loadData();
-      }
+      },
     }
   }
 </script>

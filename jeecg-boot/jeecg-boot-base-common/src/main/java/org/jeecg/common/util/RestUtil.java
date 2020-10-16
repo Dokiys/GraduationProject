@@ -3,11 +3,8 @@ package org.jeecg.common.util;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.*;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -43,16 +40,7 @@ public class RestUtil {
     /**
      * RestAPI 调用器
      */
-    private final static RestTemplate RT;
-
-    static {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(3000);
-        requestFactory.setReadTimeout(3000);
-        RT = new RestTemplate(requestFactory);
-        // 解决乱码问题
-        RT.getMessageConverters().set(1, new StringHttpMessageConverter(StandardCharsets.UTF_8));
-    }
+    private final static RestTemplate RT = new RestTemplate();
 
     public static RestTemplate getRestTemplate() {
         return RT;
@@ -181,7 +169,7 @@ public class RestUtil {
      * @param responseType 返回类型
      * @return ResponseEntity<responseType>
      */
-    public static <T> ResponseEntity<T> request(String url, HttpMethod method, HttpHeaders headers, JSONObject variables, Object params, Class<T> responseType) {
+    public static <T> ResponseEntity<T> request(String url, HttpMethod method, HttpHeaders headers, JSONObject variables, JSONObject params, Class<T> responseType) {
         if (StringUtils.isEmpty(url)) {
             throw new RuntimeException("url 不能为空");
         }
@@ -194,12 +182,7 @@ public class RestUtil {
         // 请求体
         String body = "";
         if (params != null) {
-            if (params instanceof JSONObject) {
-                body = ((JSONObject) params).toJSONString();
-
-            } else {
-                body = params.toString();
-            }
+            body = params.toJSONString();
         }
         // 拼接 url 参数
         if (variables != null) {
@@ -213,14 +196,14 @@ public class RestUtil {
     /**
      * 获取JSON请求头
      */
-    public static HttpHeaders getHeaderApplicationJson() {
+    private static HttpHeaders getHeaderApplicationJson() {
         return getHeader(MediaType.APPLICATION_JSON_UTF8_VALUE);
     }
 
     /**
      * 获取请求头
      */
-    public static HttpHeaders getHeader(String mediaType) {
+    private static HttpHeaders getHeader(String mediaType) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(mediaType));
         headers.add("Accept", mediaType);

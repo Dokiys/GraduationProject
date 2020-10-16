@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.bysj.mapper.BysjCourseArrangeMapper">
+
+    <select id="queryScheduleSelected" resultType="org.jeecg.modules.bysj.entity.BysjCourseArrangeVO">
+        SELECT
+            bca.id id,
+            bcoursei.id courseId,
+            bcoursei.course_name courseName,
+            bca.timetable_start_code timetableStartCode,
+            bca.timetable_end_code timetableEndCode
+        FROM
+            bysj_course_arrange bca LEFT JOIN bysj_classroom_info bclassi ON bca.classroom_id = bclassi.id
+                                    LEFT JOIN bysj_course_info bcoursei ON bca.course_id = bcoursei.id
+                                    LEFT JOIN sys_depart sd ON bca.class_id = sd.id
+        WHERE bcoursei.`status` IN (1,2)
+        AND(
+            sd.id IN
+                <foreach collection="departIds" item="item" index="index" open="(" separator="," close=")">
+                    #{item,jdbcType=VARCHAR}
+                </foreach>
+            OR
+            bca.course_id IN (
+                SELECT
+                    DISTINCT b1.id
+                FROM
+                    bysj_course_info b1 LEFT JOIN bysj_course_info b2 ON b1.course_teacherId = b2.course_teacherId
+                WHERE 1 = 1
+                    <if test="courseId != null and courseId != ''">
+                        AND (b1.id = #{courseId,jdbcType=VARCHAR} OR b2.id = #{courseId,jdbcType=VARCHAR})
+                    </if>
+                )
+        )
+    </select>
+
+    <select id="pageList" resultType="org.jeecg.modules.bysj.entity.BysjCourseArrangeVO">
+        SELECT
+            bca.id id,
+            bcoursei.id courseId,
+            bcoursei.course_name courseName,
+            bcoursei.status courseStatus,
+            bcoursei.start_time startTime,
+            bcoursei.end_time endTime,
+            bcoursei.`status` status,
+            bclassi.id classroomId,
+            bclassi.classroom_name classroomName,
+            sd.id classId,
+            sd.depart_name className,
+            bca.timetable_start_code timetableStartCode,
+            bca.timetable_end_code timetableEndCode
+        FROM
+            bysj_classroom_info bclassi,
+            bysj_course_info bcoursei,
+            bysj_course_arrange bca,
+            sys_depart sd
+        WHERE
+            bca.classroom_id = bclassi.id
+            AND bca.course_id = bcoursei.id
+            AND bca.class_id = sd.id
+            AND bcoursei.`status` IN (1,2)
+            <if test="bysjCourseArrange.courseId != null and bysjCourseArrange.courseId != '' ">
+                AND bca.course_id = #{bysjCourseArrange.courseId,jdbcType=VARCHAR}
+            </if>
+            <if test="bysjCourseArrange.classroomId != null and bysjCourseArrange.classroomId != '' ">
+                AND bca.classroom_id = #{bysjCourseArrange.classroomId,jdbcType=VARCHAR}
+            </if>
+            AND sd.id IN
+            <foreach collection="depIds" item="item" index="index" open="(" separator="," close=")">
+                #{item,jdbcType=VARCHAR}
+            </foreach>
+
+    </select>
+
+    <select id="querySameCourseArrangeById" resultType="org.jeecg.modules.bysj.entity.BysjCourseArrangeVO">
+        SELECT
+            DISTINCT
+            bca1.id id,
+            bca1.course_id courseId,
+            bca1.classroom_id classroomId,
+            bca1.class_id classId,
+            bca1.timetable_start_code timetableStartCode,
+            bca1.timetable_end_code timetableEndCode
+        FROM
+            bysj_course_arrange bca1,bysj_course_arrange bca2
+        WHERE
+            bca1.course_id = bca2.course_id
+        <if test="id != null and id != '' ">
+            AND
+                bca2.id = #{id,jdbcType=VARCHAR}
+        </if>
+
+    </select>
+
+
+    <select id="queryScheduleByClass" resultType="org.jeecg.modules.bysj.entity.BysjCourseArrangeVO">
+        SELECT
+            DISTINCT
+            bca.id id,
+            bca.course_id courseId,
+            bca.classroom_id classroomId,
+            bci.course_name courseName,
+            bci.start_time startTime,
+            bci.end_time endTime,
+            bci.`status` status,
+            bca.class_id classId,
+            bca.timetable_start_code timetableStartCode,
+            bca.timetable_end_code timetableEndCode
+        FROM
+            bysj_course_arrange bca,
+            bysj_course_info bci
+        WHERE
+            bca.course_id = bci.id
+        <if test="date != null and date != ''">
+            AND bci.start_time &lt;= #{date,jdbcType=DATE}
+            AND bci.end_time &gt;= #{date,jdbcType=DATE}
+        </if>
+        <if test="date == null or date == ''">
+            AND bci.`status` IN (1,2)
+        </if>
+        AND bca.class_id IN
+        <foreach collection="classIds" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+
+    </select>
+
+    <select id="queryScheduleByCourse" resultType="org.jeecg.modules.bysj.entity.BysjCourseArrangeVO">
+        SELECT
+            DISTINCT
+            bca.id id,
+            bca.course_id courseId,
+            bca.classroom_id classroomId,
+            bca.class_id classId,
+            bci.course_name courseName,
+            bci.start_time startTime,
+            bci.`status` status,
+            bca.timetable_start_code timetableStartCode,
+            bca.timetable_end_code timetableEndCode
+        FROM
+            bysj_course_arrange bca,
+            bysj_course_info bci
+        WHERE
+            bca.course_id = bci.id
+        <if test="date != null and date != ''">
+            AND bci.start_time &lt;= #{date,jdbcType=DATE}
+            AND bci.end_time &gt;= #{date,jdbcType=DATE}
+        </if>
+        <if test="date == null or date == ''">
+            AND bci.`status` IN (1,2)
+        </if>
+        AND bca.course_id IN
+        <foreach collection="courseIds" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+</mapper>

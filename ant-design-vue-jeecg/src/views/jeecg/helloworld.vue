@@ -33,7 +33,6 @@
 <script>
   import { getAction } from '@/api/manage'
   export default {
-    props: ['sex','name'],
     data () {
       return {
         formLayout: 'horizontal',
@@ -64,25 +63,11 @@
       },
     },
     created (){
-      console.log('============= online href common props ============= ');
-      console.log('props sex: ',this.sex);
-      console.log('props name: ',this.name);
-
       getAction('/api/area').then((res) => {
           console.log("------------")
           console.log(res)
           this.areaOptions = res;
       })
-    },
-    watch: {
-      $route: {
-        immediate: true,
-        handler() {
-          console.log('============= online href  $route props ============= ');
-          let sex = this.$route.query.sex
-          console.log('$route sex: ', sex);
-        }
-      }
-    },
+    }
   }
 </script>

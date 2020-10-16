@@ -29,7 +29,7 @@ import org.jeecgframework.poi.excel.annotation.Excel;
 public class SysDepartRoleUser {
     
 	/**主键id*/
-	@TableId(type = IdType.ASSIGN_ID)
+	@TableId(type = IdType.ID_WORKER_STR)
     @ApiModelProperty(value = "主键id")
 	private java.lang.String id;
 	/**用户id*/

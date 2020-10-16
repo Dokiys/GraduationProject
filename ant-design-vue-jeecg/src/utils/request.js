@@ -3,26 +3,23 @@ import axios from 'axios'
 import store from '@/store'
 import { VueAxios } from './axios'
 import {Modal, notification} from 'ant-design-vue'
-import { ACCESS_TOKEN, TENANT_ID } from "@/store/mutation-types"
+import { ACCESS_TOKEN } from "@/store/mutation-types"
 
-/**
- * 【指定 axios的 baseURL】
- * 如果手工指定 baseURL: '/jeecg-boot'
- * 则映射后端域名，通过 vue.config.js
- * @type {*|string}
- */
-let apiBaseUrl = window._CONFIG['domianURL'] || "/jeecg-boot";
-//console.log("apiBaseUrl= ",apiBaseUrl)
+//自动设置后台服务 baseURL (也可以手工指定写死项目名字)
+let baseDomain = window._CONFIG['domianURL'];
+let baseProject = baseDomain.substring(baseDomain.lastIndexOf("/"));
+console.log("baseDomain= ",baseDomain)
+console.log("baseProject= ",baseProject)
+
 // 创建 axios 实例
 const service = axios.create({
   //baseURL: '/jeecg-boot',
-  baseURL: apiBaseUrl, // api base_url
+  baseURL: baseProject, // api base_url
   timeout: 9000 // 请求超时时间
 })
 
 const err = (error) => {
   if (error.response) {
-    let that=this;
     let data = error.response.data
     const token = Vue.ls.get(ACCESS_TOKEN)
     console.log("------异常响应------",token)
@@ -33,8 +30,11 @@ const err = (error) => {
         break
       case 500:
         //notification.error({ message: '系统提示', description:'Token失效，请重新登录!',duration: 4})
-        if(token && data.message.includes("Token失效")){
+        if(token && data.message=="Token失效，请重新登录"){
           // update-begin- --- author:scott ------ date:20190225 ---- for:Token失效采用弹框模式，不直接跳转----
+          // store.dispatch('Logout').then(() => {
+          //     window.location.reload()
+          // })
           Modal.error({
             title: '登录已过期',
             content: '很抱歉，登录已过期，请重新登录',
@@ -43,15 +43,7 @@ const err = (error) => {
             onOk: () => {
               store.dispatch('Logout').then(() => {
                 Vue.ls.remove(ACCESS_TOKEN)
-                try {
-                  let path = window.document.location.pathname
-                  console.log("location pathname -> "+path)
-                  if(path!="/" && path.indexOf('/user/login')==-1){
-                    window.location.reload()
-                  }
-                }catch (e) {
-                  window.location.reload()
-                }
+                window.location.reload()
               })
             }
           })
@@ -92,13 +84,6 @@ service.interceptors.request.use(config => {
   if (token) {
     config.headers[ 'X-Access-Token' ] = token // 让每个请求携带自定义 token 请根据实际情况自行修改
   }
-  //update-begin-author:taoyan date:2020707 for:多租户
-  let tenantid = Vue.ls.get(TENANT_ID)
-  if (!tenantid) {
-    tenantid = 0;
-  }
-  config.headers[ 'tenant_id' ] = tenantid
-  //update-end-author:taoyan date:2020707 for:多租户
   if(config.method=='get'){
     if(config.url.indexOf("sys/dict/getDictItems")<0){
       config.params = {

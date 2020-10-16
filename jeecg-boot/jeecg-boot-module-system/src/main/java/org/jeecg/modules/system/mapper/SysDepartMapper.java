@@ -3,8 +3,6 @@ package org.jeecg.modules.system.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Select;
 import org.jeecg.modules.system.entity.SysDepart;
-import org.jeecg.modules.system.model.SysDepartTreeModel;
-import org.jeecg.modules.system.model.TreeModel;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -52,4 +50,10 @@ public interface SysDepartMapper extends BaseMapper<SysDepart> {
 	 */
 	List<String> getSubDepIdsByOrgCodes(@org.apache.ibatis.annotations.Param("orgCodes") String[] orgCodes);
 
+	/**
+	 * 根据部门list查询人数
+	 * @param list
+	 * @return
+	 */
+    Integer queryUserNumByIds(@org.apache.ibatis.annotations.Param("depIds") List<String> list);
 }

@@ -79,30 +79,26 @@
           {
             title: '表名',
             align: 'center',
-            dataIndex: 'dataTable',
-            width: "120"
+            dataIndex: 'dataTable'
           }, {
             title: '数据ID',
             align: 'center',
-            dataIndex: 'dataId',
-            width: "120"
+            dataIndex: 'dataId'
           }, {
             title: '版本号',
             align: 'center',
-            dataIndex: 'dataVersion',
-            width: "50"
+            dataIndex: 'dataVersion'
           }, {
             title: '数据内容',
             align: 'center',
             dataIndex: 'dataContent',
-            width: "150",
+            width: "120px",
             scopedSlots: {customRender: 'dataContent'},
           }, {
             title: '创建人',
             align: 'center',
-            dataIndex: 'createBy',
-            width: "100"
-          },
+            dataIndex: 'createBy'
+          }
         ],
         url: {
           list: "/sys/dataLog/list",

@@ -121,10 +121,10 @@
       this.loadData();
       //this.timerFun();
       this.initWebSocket();
-     // this.heartCheckFun();
+      this.heartCheckFun();
     },
     destroyed: function () { // 离开页面生命周期函数
-      this.websocketOnclose();
+      this.websocketclose();
     },
     methods: {
       timerFun() {
@@ -186,8 +186,10 @@
         }
       },
       toMyAnnouncement(){
+
         this.$router.push({
-          path: '/isps/userAnnouncement'
+          path: '/isps/userAnnouncement',
+          name: 'isps-userAnnouncement'
         });
       },
       modalFormOk(){
@@ -200,7 +202,7 @@
         // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
         var userId = store.getters.userInfo.id;
         var url = window._CONFIG['domianURL'].replace("https://","wss://").replace("http://","ws://")+"/websocket/"+userId;
-        //console.log(url);
+        console.log(url);
         this.websock = new WebSocket(url);
         this.websock.onopen = this.websocketOnopen;
         this.websock.onerror = this.websocketOnerror;
@@ -210,7 +212,7 @@
       websocketOnopen: function () {
         console.log("WebSocket连接成功");
         //心跳检测重置
-        //this.heartCheck.reset().start();
+        this.heartCheck.reset().start();
       },
       websocketOnerror: function (e) {
         console.log("WebSocket连接发生错误");
@@ -227,13 +229,10 @@
           this.loadData();
         }
         //心跳检测重置
-        //this.heartCheck.reset().start();
+        this.heartCheck.reset().start();
       },
       websocketOnclose: function (e) {
-        console.log("connection closed (" + e + ")");
-        if(e){
-          console.log("connection closed (" + e.code + ")");
-        }
+        console.log("connection closed (" + e.code + ")");
         this.reconnect();
       },
       websocketSend(text) { // 数据发送

@@ -2,4 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.jeecg.modules.system.mapper.SysDepartRoleUserMapper">
 
+    <resultMap id="SysDepartRoleUser" type="org.jeecg.modules.system.entity.SysDepartRoleUser">
+        <id property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="userId" column="userId" jdbcType="VARCHAR"/>
+        <result property="droleId" column="droleId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="listByUserIds" resultMap="SysDepartRoleUser" parameterType="list">
+        SELECT id,user_id,drole_id FROM sys_depart_role_user
+        <where>
+            id in
+            <foreach item="item" collection="userIds" separator="," open="(" close=")" index="">
+                #{item, jdbcType=VARCHAR}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getByUserId" resultType="String" parameterType="String">
+        SELECT drole_id FROM sys_depart_role_user
+        <where>
+            user_id = #{userId}
+        </where>
+    </select>
 </mapper>

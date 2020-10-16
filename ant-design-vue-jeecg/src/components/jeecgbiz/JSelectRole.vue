@@ -19,7 +19,7 @@
   import JSelectBizComponent from './JSelectBizComponent'
 
   export default {
-    name: 'JSelectRole',
+    name: 'JSelectMultiUser',
     components: { JSelectBizComponent },
     props: ['value'],
     data() {

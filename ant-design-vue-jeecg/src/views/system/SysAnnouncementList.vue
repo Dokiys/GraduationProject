@@ -108,7 +108,6 @@
 <script>
   import SysAnnouncementModal from './modules/SysAnnouncementModal'
   import {doReleaseData, doReovkeData} from '@/api/api'
-  import {getAction} from '@/api/manage'
   import {JeecgListMixin} from '@/mixins/JeecgListMixin'
 
   export default {
@@ -274,14 +273,10 @@
           if (res.success) {
             that.$message.success(res.message);
             that.loadData(1);
-            this.syncHeadNotic(id)
           } else {
             that.$message.warning(res.message);
           }
         });
-      },
-      syncHeadNotic(anntId){
-        getAction("sys/annountCement/syncNotic",{anntId:anntId})
       },
     }
   }
