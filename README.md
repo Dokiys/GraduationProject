@@ -79,35 +79,35 @@
 
 根据用户的角色信息，查询被授予的页面限权页面。根据返回的页面渲染出不同的功能页面。所有的功能可分为以下功能模块，如下图所示。
 
-![功能模块](Z:/GraduationProject/lib/clip_image003.png)
+![功能模块](./lib/clip_image003.png)
 
 ### 用户模块功能结构
 
 用户模块是集中所有处理用户信息相关的模块，凡是与用户登录账户相关的所以功能均被包含在此模块中。如下图所示。
 
-![用户模块](Z:/GraduationProject/lib/clip_image005.png)
+![用户模块](./lib/clip_image005.png)
 
 ### 教务管理模块功能结构
 
 教务管理功能模块包括院系班级管理，课程管理，排课管理，成绩管理，教室管理。如下图所示。
 
-![教务管理模块](Z:/GraduationProject/lib/clip_image007.png)
+![教务管理模块](./lib/clip_image007.png)
 
 ### 教务查询模块功能结构
 
 教务查询功能模块包括我的成绩，我的课程，我的课表，班级信息。如下图所示。
 
-![教务查询模块](Z:/GraduationProject/lib/clip_image009.png)
+![教务查询模块](./lib/clip_image009.png)
 
 ## 界面
 
-![界面](Z:/GraduationProject/lib/clip_image011.jpg)
+![界面](./lib/clip_image011.jpg)
 
 ## 数据库
 
 主要涉及表如下
 
-![数据库](Z:/GraduationProject/lib/clip_image016.jpg)
+![数据库](./lib/clip_image016.jpg)
 
 
 
