@@ -115,8 +115,8 @@
 
 JEECG BOOT 低代码开发平台（前后端分离版本）
 ===============
-
 ![JEECG](https://static.oschina.net/uploads/img/201905/24164523_XDhg.png "JeecgBoot快速开发平台")
+
 当前最新版本： 2.3（发布日期：2020-09-14）
 
 [![AUR](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://github.com/zhangdaiscott/jeecg-boot/blob/master/LICENSE)
@@ -126,5 +126,6 @@ JEECG BOOT 低代码开发平台（前后端分离版本）
 [![GitHub forks](https://img.shields.io/github/forks/zhangdaiscott/jeecg-boot.svg?style=social&label=Fork)](https://github.com/zhangdaiscott/jeecg-boot)
 
 - 技术官网：  [http://www.jeecg.com](http://www.jeecg.com)
+
 - Git源码地址：  [https://github.com/zhangdaiscott/jeecg-boot](https://github.com/zhangdaiscott/jeecg-boot)
 
